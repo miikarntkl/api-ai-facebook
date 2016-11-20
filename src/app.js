@@ -309,5 +309,6 @@ function findVenue(parameters) {
     });
 
     console.log(typeof(response));
+    console.log(response);
     return '';
 }
