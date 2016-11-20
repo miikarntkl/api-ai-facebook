@@ -92,8 +92,9 @@ function processEvent(event) {
                             console.log('Found parameters');
                             var splitResponse = splitResponse(findVenue(parameters));
 
-                            async.eachSeries(splitResponse, (textPart, callback) => {
+                            async.eachSeries(splittedText, (textPart, callback) => {
                                 sendFBMessage(sender, {text: textPart}, callback);
+                            });
                         }
                     }
                 }
@@ -305,4 +306,4 @@ function findVenue(parameters) {
     });
 
     return response.name;
-};
+}
