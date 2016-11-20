@@ -28,7 +28,7 @@ const foursquareCategories = {
     arts: 'arts',
     topPicks: 'topPicks',
 };
-var suggestionLimit = 5;
+var suggestionLimit = 1;
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -93,7 +93,7 @@ function processEvent(event) {
                             console.log('Found parameters');
                             var foursquareResponse = findVenue(parameters);
                             if (isDefined(foursquareResponse)) {
-                                cardResponse(foursquareResponse);
+                                sendFBCardMessage(foursquareResponse);
                             }
                         }
                     }
@@ -116,10 +116,6 @@ function textResponse(str, sender) {
     async.eachSeries(splittedText, (textPart, callback) => {
         sendFBMessage(sender, {text: textPart}, callback);
     });
-}
-
-function cardResponse(res) {
-    //respond with a card
 }
 
 function splitResponse(str) {
@@ -170,6 +166,50 @@ function sendFBMessage(sender, messageData, callback) {
     }, (error, response, body) => {
         if (error) {
             console.log('Error sending message: ', error);
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error);
+        }
+
+        if (callback) {
+            callback();
+        }
+    });
+}
+
+function sendFBCardMessage (sender, messageData, callback) {
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token: FB_PAGE_ACCESS_TOKEN},
+        method: 'POST',
+        json: {
+            recipient: {id: sender},
+            message: {
+                'attachment':{
+                    'type':'template',
+                    'payload':{
+                      'template_type':'generic',
+                      'elements':[
+                        {
+                          'title':'Welcome to Google',
+                          'item_url':'https://www.google.com',
+                          'image_url':'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+                          'subtitle':'Search for anything',
+                          'buttons':[
+                            {
+                              'type':'web_url',
+                              'url':'https://www.google.com',
+                              'title':'View Website'
+                            },          
+                          ]
+                        }
+                      ]
+                    }
+                }
+            }
+        }
+    }, (error, response, body) => {
+        if (error) {
+            console.log('Error sending card message: ', error);
         } else if (response.body.error) {
             console.log('Error: ', response.body.error);
         }
