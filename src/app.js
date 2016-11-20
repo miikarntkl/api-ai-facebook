@@ -14,9 +14,13 @@ const APIAI_ACCESS_TOKEN = process.env.APIAI_ACCESS_TOKEN;
 const APIAI_LANG = process.env.APIAI_LANG || 'en';
 const FB_VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN;
 const FB_PAGE_ACCESS_TOKEN = process.env.FB_PAGE_ACCESS_TOKEN;
+const FS_CLIENT_SECRET = process.env.FS_CLIENT_SECRET;
+const FS_CLIENT_ID = process.env.FS_CLIENT_ID;
 
 const apiAiService = apiai(APIAI_ACCESS_TOKEN, {language: APIAI_LANG, requestSource: "fb"});
 const sessionIds = new Map();
+
+const foursquareVersion = '20160108';
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -45,6 +49,7 @@ function processEvent(event) {
                 let responseData = response.result.fulfillment.data;
                 var action = response.result.action;
                 var intentName = response.result.metadata.intentName;
+                var parameters = response.result.parameters;
 
                 console.log(action);
 
@@ -83,11 +88,14 @@ function processEvent(event) {
                     });
                 } else if (isDefined(action) && isDefined(intentName)) {
                     if (action === actionFindVenue && intentName == intentFindVenue) {
-                        if (isDefined(response.result.parameters)) {
-                            //var options = formatParameters(response.result.)
+                        if (isDefined(parameters)) {
+                            var options = formatGETOptions(parameters);
                             console.log('Found parameters');
+                            //var splitResponse = splitResponse(findVenue());
+
+                            //async.eachSeries(splitResponse, (textPart, callback) => {
+                            //    sendFBMessage(sender, {text: textPart}, callback);
                         }
-                        //findVenue();
                     }
                 }
 
@@ -259,13 +267,39 @@ app.listen(REST_PORT, () => {
 
 doSubscribeRequest();
 
-function findVenue(options) {
+function formatGETOptions(parameters) {
 
-    var response = "";
+    var options = {
+        near: '&near='.concat(parameters.address),
+        query: '&query='.concat(parameters.venue)
+    }
+
     var httpOptions = {
     host: 'api.foursquare.com/v2',
     port: 80,
-    path: '/venues/search?',
+    path: '/venues/search?'.concat('client_id=', FS_CLIENT_ID,
+        '&client_secret=', FS_CLIENT_SECRET,
+        '&v=', foursquareVersion,
+        '&m=foursquare')
+    };
+
+    for (var key in options) {
+        httpOptions.path.concat(key);
+    }
+    console.log(httpOptions.path);
+}
+
+function findVenue(options) {
+
+    var response = "";
+
+    var httpOptions = {
+    host: 'api.foursquare.com/v2',
+    port: 80,
+    path: '/venues/search?'.concat('client_id=', FS_CLIENT_ID,
+        '&client_secret=', FS_CLIENT_SECRET,
+        '&v=', foursquareVersion,
+        '&m=foursquare', '&')
     };
 
     for (var key in options) {
@@ -281,5 +315,5 @@ function findVenue(options) {
     console.log("GET error: " + e.message);
     });
 
-    return response;
+    return response.name;
 };
