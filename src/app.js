@@ -276,9 +276,9 @@ function formatGETOptions(parameters) {
     };
 
     var httpOptions = {
-    host: 'api.foursquare.com/v2',
+    host: 'api.foursquare.com',
     port: 80,
-    path: '/venues/search?'.concat('client_id=', FS_CLIENT_ID,
+    path: '/v2/venues/search?'.concat('client_id=', FS_CLIENT_ID,
         '&client_secret=', FS_CLIENT_SECRET,
         '&v=', foursquareVersion,
         '&m=foursquare',
