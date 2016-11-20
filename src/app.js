@@ -287,7 +287,6 @@ function formatGETOptions(parameters) {
     };
 
     console.log(options.url);
-    console.log(querystring.stringify(options.qs));
 
     return options;
 }
