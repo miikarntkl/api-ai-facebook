@@ -310,6 +310,6 @@ function findVenue(parameters) {
     console.log('GET error: ' + e.message);
     });
 
-    console.log(str);
+    console.log(typeof(str));
     return str;
 }
