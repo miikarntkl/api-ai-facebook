@@ -26,7 +26,7 @@ const foursquareCategories = {
     coffee: 'coffee',
     shops: 'shops',
     arts: 'arts',
-    top: 'topPicks',
+    topPicks: 'topPicks',
 };
 
 const actionFindVenue = 'findVenue';
@@ -85,23 +85,15 @@ function processEvent(event) {
                         });
                     }
                 } else if (isDefined(responseText)) {
-                    console.log('Response as text message');
-                    // facebook API limit for text length is 320,
-                    // so we must split message if needed
-                    var splittedText = splitResponse(responseText);
-
-                    async.eachSeries(splittedText, (textPart, callback) => {
-                        sendFBMessage(sender, {text: textPart}, callback);
-                    });
+                    responseText(responseText);
                 } else if (isDefined(action) && isDefined(intentName)) {
                     if (action === actionFindVenue && intentName == intentFindVenue) {
                         if (isDefined(parameters)) {
                             console.log('Found parameters');
-                            var foursquareResponse = splitResponse(findVenue(parameters));
-
-                            async.eachSeries(splittedText, (textPart, callback) => {
-                                sendFBMessage(sender, {text: textPart}, callback);
-                            });
+                            var foursquareResponse = findVenue(parameters);
+                            if (isDefined(foursquareResponse)) {
+                                cardResponse(foursquareResponse);
+                            }
                         }
                     }
                 }
@@ -112,6 +104,21 @@ function processEvent(event) {
         apiaiRequest.on('error', (error) => console.error(error));
         apiaiRequest.end();
     }
+}
+
+function textResponse(str) {
+    console.log('Response as text message');
+        // facebook API limit for text length is 320,
+        // so we must split message if needed
+    var splittedText = splitResponse(responseText);
+
+    async.eachSeries(splittedText, (textPart, callback) => {
+        sendFBMessage(sender, {text: textPart}, callback);
+    });
+}
+
+function cardResponse(res) {
+    //respond with a card
 }
 
 function splitResponse(str) {
@@ -276,8 +283,15 @@ doSubscribeRequest();
 
 function formatGETOptions(parameters) {
 
-    if (!isDefined(parameters.venue)) {
-        parameters.venue = 'food';
+    var venueType = parameters.venue;
+    var location = parameters.location.location;
+
+    if (!isDefined(venueType)) {
+        venueType = foursquareCategories.topPicks;
+    }
+
+    if (!isDefined(location)) {
+        return null;
     }
 
     var options = {
@@ -288,8 +302,8 @@ function formatGETOptions(parameters) {
             client_secret: FS_CLIENT_SECRET,
             v: foursquareVersion,
             m: 'foursquare',
-            near: parameters.location,
-            section: parameters.venue,
+            near: location,
+            section: venueType,
             limit: 5,
         },
         venuePhotos: 1,
@@ -308,14 +322,16 @@ function findVenue(parameters) {
 
     var options = formatGETOptions(parameters);
 
-    request(options, (error, res, body) => {  
-        if (error) {
-            console.error('GET Error: ', error);
-        } else {
-            console.log('GET Success!');
-            response = JSON.parse(body);
-        }
-    });
+    if (isDefined(options)) {
+        request(options, (error, res, body) => {  
+            if (error) {
+                console.error('GET Error: ', error);
+            } else {
+                console.log(body);
+                response = JSON.parse(body);
+            }
+        });
+    };
 
     console.log(typeof(response));
     return response;
