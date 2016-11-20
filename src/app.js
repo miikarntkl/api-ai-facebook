@@ -281,7 +281,7 @@ function formatGETOptions(parameters) {
 
     var httpOptions = {
     host: 'http://api.foursquare.com/v2/',
-    path: 'venues/search?'.concat('client_id=', FS_CLIENT_ID,
+    path: 'venues/explore?'.concat('client_id=', FS_CLIENT_ID,
         '&client_secret=', FS_CLIENT_SECRET,
         '&v=', foursquareVersion,
         '&m=foursquare',
