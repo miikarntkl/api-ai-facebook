@@ -89,12 +89,11 @@ function processEvent(event) {
                 } else if (isDefined(action) && isDefined(intentName)) {
                     if (action === actionFindVenue && intentName == intentFindVenue) {
                         if (isDefined(parameters)) {
-                            var options = formatGETOptions(parameters);
                             console.log('Found parameters');
-                            //var splitResponse = splitResponse(findVenue());
+                            var splitResponse = splitResponse(findVenue(parameters));
 
-                            //async.eachSeries(splitResponse, (textPart, callback) => {
-                            //    sendFBMessage(sender, {text: textPart}, callback);
+                            async.eachSeries(splitResponse, (textPart, callback) => {
+                                sendFBMessage(sender, {text: textPart}, callback);
                         }
                     }
                 }
@@ -290,13 +289,13 @@ function formatGETOptions(parameters) {
     return httpOptions;
 }
 
-function findVenue(options) {
+function findVenue(parameters) {
 
     var response = "";
 
-    var httpOptions = options;
+    var options = formatGETOptions(parameters);
 
-    http.get(httpOptions, function(res){
+    http.get(options, function(res){
         res.on('data', function(chunk){
             response = chunk;
             console.log(chunk);
