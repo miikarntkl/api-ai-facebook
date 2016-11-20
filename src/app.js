@@ -272,7 +272,7 @@ function formatGETOptions(parameters) {
     var options = {
         near: '&near='.concat(parameters.address),
         query: '&query='.concat(parameters.venue)
-    }
+    };
 
     var httpOptions = {
     host: 'api.foursquare.com/v2',
