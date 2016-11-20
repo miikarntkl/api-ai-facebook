@@ -284,7 +284,9 @@ function formatGETOptions(parameters) {
     };
 
     for (var key in options) {
+        console.log(key);
         httpOptions.path.concat(key);
+        console.log(httpOptions.path);
     }
     console.log(httpOptions.path);
 }
