@@ -284,10 +284,10 @@ function formatGETOptions(parameters) {
             query: parameters.venue,
             limit: 5,
         },
-        json: true
     };
 
     console.log(options.url);
+    console.log(querystring.stringify(options.qs));
 
     return options;
 }
@@ -302,13 +302,13 @@ function findVenue(parameters) {
         if (error) {
             console.error('GET Error: ', error);
         } else {
-            console.log('GET Success');
-            response = body;
+            console.log('GET Success!');
+            console.log('Response: ', res);
+            console.log('Body: ', body);
+            response = res;
         }
-        
     });
 
     console.log(typeof(response));
-    console.log(response);
     return '';
 }
