@@ -269,6 +269,10 @@ doSubscribeRequest();
 
 function formatGETOptions(parameters) {
 
+    if (!isDefined(parameters.venue)) {
+        parameters.venue = 'restaurant';
+    }
+
     var options = {
         near: '&near='.concat(parameters.address),
         query: '&query='.concat(parameters.venue),
@@ -298,8 +302,8 @@ function findVenue(parameters) {
     var options = formatGETOptions(parameters);
 
     var str = '';
-    http.get(options, function(response){
-        response.on('data', function(chunk){
+    http.get(httpOptions.host.concat(httpOptions.path), function(res){
+        res.on('data', function(chunk){
             str += chunk;
         });
     }).on('error', function(e){
