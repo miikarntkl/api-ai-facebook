@@ -274,7 +274,7 @@ function formatGETOptions(parameters) {
 
     var options = {
         method: 'GET',
-        uri: 'http://api.foursquare.com/v2/venues/explore',
+        url: 'http://api.foursquare.com/v2/venues/explore',
         qs: {
             client_id: FS_CLIENT_ID,
             client_secret: FS_CLIENT_SECRET,
@@ -298,13 +298,15 @@ function findVenue(parameters) {
 
     var options = formatGETOptions(parameters);
 
-    request(options)  
-        .then(function (res) {
-            response = res;
-        })
-        .catch(function(err) {
-            console.log('GET error: ' + err.message)
-    })
+    request(options, (error, res, body) => {  
+        if (error) {
+            console.error('GET Error: ', error);
+        } else {
+            console.log('GET Success');
+            response = body;
+        }
+        
+    });
 
     console.log(typeof(response));
     return '';
