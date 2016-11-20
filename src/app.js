@@ -298,16 +298,6 @@ function findVenue(parameters) {
 
     var options = formatGETOptions(parameters);
 
-    var str = '';
-    http.get(options.host.concat(options.path), function(res){
-        res.on('data', function(chunk){
-            str += chunk;
-        });
-    }).on('error', function(e){
-    console.log('GET error: ' + e.message);
-    });
-
-
     request(options)  
         .then(function (res) {
             response = res;
