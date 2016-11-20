@@ -28,6 +28,7 @@ const foursquareCategories = {
     arts: 'arts',
     topPicks: 'topPicks',
 };
+var suggestionLimit = 5;
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -304,10 +305,10 @@ function formatGETOptions(parameters) {
             m: 'foursquare',
             near: location,
             section: venueType,
-            limit: 5,
+            limit: suggestionLimit,
         },
         venuePhotos: 1,
-
+        json: true,
     };
 
     console.log('Venue: ', options.qs.section);
@@ -327,6 +328,7 @@ function findVenue(parameters) {
             if (error) {
                 console.error('GET Error: ', error);
             } else {
+                console.log(typeof(body);
                 console.log(body);
                 response = JSON.parse(body);
             }
