@@ -7,7 +7,7 @@ const uuid = require('node-uuid');
 const request = require('request');
 const JSONbig = require('json-bigint');
 const async = require('async');
-const https = require('https');
+const http = require('http');
 
 const REST_PORT = (process.env.PORT || 5000);
 const APIAI_ACCESS_TOKEN = process.env.APIAI_ACCESS_TOKEN;
@@ -279,8 +279,8 @@ function formatGETOptions(parameters) {
         limit: '&limit=5'
     };
 
-    var httpsOptions = {
-    host: 'https://api.foursquare.com/v2/',
+    var httpOptions = {
+    host: 'http://api.foursquare.com/v2/',
     path: 'venues/search?'.concat('client_id=', FS_CLIENT_ID,
         '&client_secret=', FS_CLIENT_SECRET,
         '&v=', foursquareVersion,
@@ -290,9 +290,9 @@ function formatGETOptions(parameters) {
         options.limit)
     };
 
-    console.log(httpsOptions.path);
+    console.log(httpOptions.path);
 
-    return httpsOptions;
+    return httpOptions;
 }
 
 function findVenue(parameters) {
@@ -302,7 +302,7 @@ function findVenue(parameters) {
     var options = formatGETOptions(parameters);
 
     var str = '';
-    https.get(options.host.concat(options.path), function(res){
+    http.get(options.host.concat(options.path), function(res){
         res.on('data', function(chunk){
             str += chunk;
         });
