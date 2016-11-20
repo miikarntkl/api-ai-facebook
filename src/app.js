@@ -20,6 +20,14 @@ const apiAiService = apiai(APIAI_ACCESS_TOKEN, {language: APIAI_LANG, requestSou
 const sessionIds = new Map();
 
 const foursquareVersion = '20160108';
+const foursquareCategories = {
+    food: 'food',
+    drinks: 'drinks',
+    coffee: 'coffee',
+    shops: 'shops',
+    arts: 'arts',
+    top: 'topPicks',
+};
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -269,7 +277,7 @@ doSubscribeRequest();
 function formatGETOptions(parameters) {
 
     if (!isDefined(parameters.venue)) {
-        parameters.venue = 'restaurant';
+        parameters.venue = 'food';
     }
 
     var options = {
@@ -280,20 +288,23 @@ function formatGETOptions(parameters) {
             client_secret: FS_CLIENT_SECRET,
             v: foursquareVersion,
             m: 'foursquare',
-            near: parameters.address,
-            query: parameters.venue,
-            limit: 1,
+            near: parameters.location,
+            section: parameters.venue,
+            limit: 5,
         },
+        venuePhotos: 1,
+
     };
 
-    console.log(options.url);
+    console.log('Venue: ', options.qs.section);
+    console.log('Location: ', options.qs.near);
 
     return options;
 }
 
 function findVenue(parameters) {
 
-    var response = "";
+    var response;
 
     var options = formatGETOptions(parameters);
 
@@ -307,5 +318,5 @@ function findVenue(parameters) {
     });
 
     console.log(typeof(response));
-    return '';
+    return response;
 }
