@@ -93,6 +93,7 @@ function processEvent(event) {
                             console.log('Found parameters');
                             var foursquareResponse = findVenue(parameters);
                             if (isDefined(foursquareResponse)) {
+                                console.log('Response is defined');
                                 sendFBCardMessage(foursquareResponse);
                             }
                         }
@@ -177,6 +178,7 @@ function sendFBMessage(sender, messageData, callback) {
 }
 
 function sendFBCardMessage (sender, messageData, callback) {
+    console.log('Sending card message');
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: FB_PAGE_ACCESS_TOKEN},
@@ -369,11 +371,12 @@ function findVenue(parameters) {
                 console.error('GET Error: ', error);
             } else {
                 console.log(body);
-                response = body;
+                response = body.response;
             }
         });
     };
 
     console.log(typeof(response));
+    console.log(response);
     return response;
 }
