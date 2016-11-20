@@ -7,7 +7,7 @@ const uuid = require('node-uuid');
 const request = require('request');
 const JSONbig = require('json-bigint');
 const async = require('async');
-const http = require('http');
+const http = require('https');
 
 const REST_PORT = (process.env.PORT || 5000);
 const APIAI_ACCESS_TOKEN = process.env.APIAI_ACCESS_TOKEN;
@@ -302,7 +302,7 @@ function findVenue(parameters) {
     var options = formatGETOptions(parameters);
 
     var str = '';
-    http.get(options.host.concat(options.path), function(res){
+    https.get(options.host.concat(options.path), function(res){
         res.on('data', function(chunk){
             str += chunk;
         });
