@@ -1,5 +1,5 @@
 {
-  "name": "api-ai-facebook",
+  "name": "fb-bot",
   "version": "1.0.0",
   "description": "API.AI Facebook Bot",
   "main": "src/app.js",
@@ -7,10 +7,10 @@
     "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Danil Skachkov <danil.skachkov@speaktoit.com> (https://api.ai)",
+  "author": "Miika Rantakaulio <miika.rantakaulio@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "apiai": "2.0.5",
+    "apiai": "^3.0.2",
     "async": "^2.0.0",
     "body-parser": "^1.15.2",
     "express": "^4.13.3",
@@ -21,6 +21,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/api-ai/api-ai-facebook"
+    "url": "https://github.com/miikarntkl/fb-bot"
   }
 }
