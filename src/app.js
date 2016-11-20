@@ -274,7 +274,7 @@ function formatGETOptions(parameters) {
 
     var options = {
         method: 'GET'
-        url: 'http://api.foursquare.com/v2/venues/explore',
+        uri: 'http://api.foursquare.com/v2/venues/explore',
         qs: {
             client_id: FS_CLIENT_ID,
             client_secret: FS_CLIENT_SECRET,
