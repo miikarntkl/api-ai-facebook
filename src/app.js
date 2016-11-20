@@ -282,7 +282,7 @@ function formatGETOptions(parameters) {
             m: 'foursquare',
             near: parameters.address,
             query: parameters.venue,
-            limit: 5,
+            limit: 1,
         },
     };
 
@@ -302,9 +302,7 @@ function findVenue(parameters) {
             console.error('GET Error: ', error);
         } else {
             console.log('GET Success!');
-            console.log('Response: ', res);
-            console.log('Body: ', body);
-            response = res;
+            response = JSON.parse(body);
         }
     });
 
