@@ -7,7 +7,6 @@ const uuid = require('node-uuid');
 const request = require('request');
 const JSONbig = require('json-bigint');
 const async = require('async');
-const http = require('http');
 
 const REST_PORT = (process.env.PORT || 5000);
 const APIAI_ACCESS_TOKEN = process.env.APIAI_ACCESS_TOKEN;
@@ -274,25 +273,23 @@ function formatGETOptions(parameters) {
     }
 
     var options = {
-        near: '&near='.concat(parameters.address),
-        query: '&query='.concat(parameters.venue),
-        limit: '&limit=5'
+        method: 'GET'
+        url: 'http://api.foursquare.com/v2/venues/explore',
+        qs: {
+            client_id: FS_CLIENT_ID,
+            client_secret: FS_CLIENT_SECRET,
+            v: foursquareVersion,
+            m: foursquare,
+            near: parameters.address,
+            query: parameters.venue,
+            limit: 5,
+        },
+        json: true
     };
 
-    var httpOptions = {
-    host: 'http://api.foursquare.com/v2/',
-    path: 'venues/explore?'.concat('client_id=', FS_CLIENT_ID,
-        '&client_secret=', FS_CLIENT_SECRET,
-        '&v=', foursquareVersion,
-        '&m=foursquare',
-        options.near,
-        options.query,
-        options.limit)
-    };
+    console.log(options.url);
 
-    console.log(httpOptions.path);
-
-    return httpOptions;
+    return options;
 }
 
 function findVenue(parameters) {
@@ -309,6 +306,15 @@ function findVenue(parameters) {
     }).on('error', function(e){
     console.log('GET error: ' + e.message);
     });
+
+
+    request(options)  
+        .then(function (res) {
+            response = res;
+        })
+        .catch(function(err) {
+            console.log('GET error: ' + err.message)
+    })
 
     console.log(typeof(str));
     console.log(str.length);
