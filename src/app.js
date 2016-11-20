@@ -280,33 +280,21 @@ function formatGETOptions(parameters) {
     path: '/venues/search?'.concat('client_id=', FS_CLIENT_ID,
         '&client_secret=', FS_CLIENT_SECRET,
         '&v=', foursquareVersion,
-        '&m=foursquare')
+        '&m=foursquare',
+        options.near,
+        options.query)
     };
 
-    for (var key in options) {
-        console.log(key);
-        httpOptions.path.concat(key);
-        console.log(httpOptions.path);
-    }
     console.log(httpOptions.path);
+
+    return httpOptions;
 }
 
 function findVenue(options) {
 
     var response = "";
 
-    var httpOptions = {
-    host: 'api.foursquare.com/v2',
-    port: 80,
-    path: '/venues/search?'.concat('client_id=', FS_CLIENT_ID,
-        '&client_secret=', FS_CLIENT_SECRET,
-        '&v=', foursquareVersion,
-        '&m=foursquare', '&')
-    };
-
-    for (var key in options) {
-        httpOptions.path.concat(key, '&');
-    }
+    var httpOptions = options;
 
     http.get(httpOptions, function(res){
         res.on('data', function(chunk){
