@@ -368,9 +368,8 @@ function findVenue(parameters) {
             if (error) {
                 console.error('GET Error: ', error);
             } else {
-                console.log(typeof(body));
                 console.log(body);
-                response = JSON.parse(body);
+                response = body;
             }
         });
     };
