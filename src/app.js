@@ -86,7 +86,7 @@ function processEvent(event) {
                     async.eachSeries(splittedText, (textPart, callback) => {
                         sendFBMessage(sender, {text: textPart}, callback);
                     });
-                } else if (isDefined(action) && isDefined(intentName)) {
+                } /*else if (isDefined(action) && isDefined(intentName)) {
                     if (action === actionFindVenue && intentName == intentFindVenue) {
                         if (isDefined(parameters)) {
                             console.log('Found parameters');
@@ -97,7 +97,7 @@ function processEvent(event) {
                             });
                         }
                     }
-                }
+                }*/
 
             }
         });
