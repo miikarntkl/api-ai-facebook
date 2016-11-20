@@ -292,7 +292,7 @@ function formatGETOptions(parameters) {
 
     console.log(httpsOptions.path);
 
-    return httpOptions;
+    return httpsOptions;
 }
 
 function findVenue(parameters) {
