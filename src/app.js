@@ -302,7 +302,7 @@ function findVenue(parameters) {
     var options = formatGETOptions(parameters);
 
     var str = '';
-    http.get(httpOptions.host.concat(httpOptions.path), function(res){
+    http.get(options.host.concat(options.path), function(res){
         res.on('data', function(chunk){
             str += chunk;
         });
