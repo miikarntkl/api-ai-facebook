@@ -7,6 +7,7 @@ const uuid = require('node-uuid');
 const request = require('request');
 const JSONbig = require('json-bigint');
 const async = require('async');
+const http = require('http');
 
 const REST_PORT = (process.env.PORT || 5000);
 const APIAI_ACCESS_TOKEN = process.env.APIAI_ACCESS_TOKEN;
@@ -16,6 +17,9 @@ const FB_PAGE_ACCESS_TOKEN = process.env.FB_PAGE_ACCESS_TOKEN;
 
 const apiAiService = apiai(APIAI_ACCESS_TOKEN, {language: APIAI_LANG, requestSource: "fb"});
 const sessionIds = new Map();
+
+const actionFindVenue = 'findVenue';
+const intentFindVenue = 'FindVenue';
 
 function processEvent(event) {
     var sender = event.sender.id.toString();
@@ -39,9 +43,10 @@ function processEvent(event) {
             if (isDefined(response.result)) {
                 let responseText = response.result.fulfillment.speech;
                 let responseData = response.result.fulfillment.data;
-                let action = response.result.action;
+                var action = response.result.action;
+                var intentName = response.result.metadata.intentName;
 
-                console.log(response.result.action);
+                console.log(action);
 
                 if (isDefined(responseData) && isDefined(responseData.facebook)) {
                     if (!Array.isArray(responseData.facebook)) {
@@ -76,6 +81,14 @@ function processEvent(event) {
                     async.eachSeries(splittedText, (textPart, callback) => {
                         sendFBMessage(sender, {text: textPart}, callback);
                     });
+                } else if (isDefined(action) && isDefined(intentName)) {
+                    if (action === actionFindVenue && intentName == intentFindVenue) {
+                        if (isDefined(response.result.parameters)) {
+                            //var options = formatParameters(response.result.)
+                            console.log('Found parameters');
+                        }
+                        //findVenue();
+                    }
                 }
 
             }
@@ -145,9 +158,6 @@ function sendFBMessage(sender, messageData, callback) {
 }
 
 function sendFBSenderAction(sender, action, callback) {
-
-    console.log('Action:', action);
-    
     setTimeout(() => {
         request({
             url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -248,3 +258,28 @@ app.listen(REST_PORT, () => {
 });
 
 doSubscribeRequest();
+
+function findVenue(options) {
+
+    var response = "";
+    var httpOptions = {
+    host: 'api.foursquare.com/v2',
+    port: 80,
+    path: '/venues/search?',
+    };
+
+    for (var key in options) {
+        httpOptions.path.concat(key, '&');
+    }
+
+    http.get(httpOptions, function(res){
+        res.on('data', function(chunk){
+            response = chunk;
+            console.log(chunk);
+        });
+    }).on("error", function(e){
+    console.log("GET error: " + e.message);
+    });
+
+    return response;
+};
