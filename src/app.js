@@ -28,7 +28,7 @@ function processEvent(event) {
             sessionIds.set(sender, uuid.v1());
         }
 
-        console.log("Text", text);
+        console.log("Text:", text);
 
         let apiaiRequest = apiAiService.textRequest(text,
             {
@@ -143,6 +143,9 @@ function sendFBMessage(sender, messageData, callback) {
 }
 
 function sendFBSenderAction(sender, action, callback) {
+
+    console.log('Action:', action);
+    
     setTimeout(() => {
         request({
             url: 'https://graph.facebook.com/v2.6/me/messages',

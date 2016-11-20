@@ -1,8 +1,8 @@
 {
-  "name": "API.AI Facebook integration",
-  "description": "Api.ai Facebook integration allows you to create Facebook bots with natural language understanding based on Api.ai technology.",
-  "repository": "https://github.com/api-ai/api-ai-facebook",
-  "logo": "http://xvir.github.io/img/apiai.png",
+  "name": "VenueBot",
+  "description": "Venue recommender bot for Facebook Messenger",
+  "repository": "https://github.com/miikarntkl/fb-bot",
+  "logo": "",
   "keywords": ["api.ai", "facebook", "natural language"],
   "env": {
     "APIAI_ACCESS_TOKEN": {
@@ -19,7 +19,7 @@
     },
     "APIAI_LANG": {
       "description": "Agent language",
-      "value": "",
+      "value": "en",
       "required": false
     }
   },
