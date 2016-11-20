@@ -279,7 +279,7 @@ function formatGETOptions(parameters) {
             client_id: FS_CLIENT_ID,
             client_secret: FS_CLIENT_SECRET,
             v: foursquareVersion,
-            m: foursquare,
+            m: 'foursquare',
             near: parameters.address,
             query: parameters.venue,
             limit: 5,
