@@ -306,7 +306,6 @@ function findVenue(parameters) {
             console.log('GET error: ' + err.message)
     })
 
-    console.log(typeof(str));
-    console.log(str.length);
-    return str;
+    console.log(typeof(response));
+    return '';
 }
