@@ -271,7 +271,8 @@ function formatGETOptions(parameters) {
 
     var options = {
         near: '&near='.concat(parameters.address),
-        query: '&query='.concat(parameters.venue)
+        query: '&query='.concat(parameters.venue),
+        limit: '&limit=5'
     };
 
     var httpOptions = {
@@ -282,7 +283,8 @@ function formatGETOptions(parameters) {
         '&v=', foursquareVersion,
         '&m=foursquare',
         options.near,
-        options.query)
+        options.query,
+        options.limit)
     };
 
     console.log(httpOptions.path);
@@ -296,15 +298,15 @@ function findVenue(parameters) {
 
     var options = formatGETOptions(parameters);
 
-    http.get(options, function(res){
-        res.on('data', function(chunk){
-            response = chunk;
-            console.log(chunk);
+    var str = '';
+    http.get(options, function(response){
+        response.on('data', function(chunk){
+            str += chunk;
         });
-    }).on("error", function(e){
-    console.log("GET error: " + e.message);
+    }).on('error', function(e){
+    console.log('GET error: ' + e.message);
     });
 
-    console.log(response.name);
-    return response.name;
+    console.log(str);
+    return str;
 }
