@@ -109,6 +109,8 @@ function processEvent(event) {
                                 if (isDefined(foursquareResponse)) {
                                     console.log('Response is defined');
                                     sendFBCardMessage(sender, formatVenueData(foursquareResponse));
+                                } else {
+                                    textResponse('Please specify a location.', sender);
                                 }
                             });
                         }
@@ -447,5 +449,7 @@ function findVenue(parameters, callback) {
                 callback(body);
             }
         });
+    } else {
+        callback(null)
     }
 }
