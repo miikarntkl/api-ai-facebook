@@ -88,14 +88,18 @@ function processEvent(event) {
                 } else if (isDefined(responseText)) {
                     textResponse(responseText, sender);
                 } else if (isDefined(action) && isDefined(intentName)) {
+                    
                     if (action === actionFindVenue && intentName == intentFindVenue) {
                         if (isDefined(parameters)) {
+
                             console.log('Found parameters');
-                            var foursquareResponse = findVenue(parameters);
-                            if (isDefined(foursquareResponse)) {
-                                console.log('Response is defined');
-                                sendFBCardMessage(foursquareResponse);
-                            }
+
+                            findVenue(parameters, (foursquareResponse) => {
+                                if (isDefined(foursquareResponse)) {
+                                    console.log('Response is defined');
+                                    sendFBCardMessage(foursquareResponse);
+                                }
+                            });
                         }
                     }
                 }
@@ -359,9 +363,7 @@ function formatGETOptions(parameters) {
     return options;
 }
 
-function findVenue(parameters) {
-
-    var response;
+function findVenue(parameters, callback) {
 
     var options = formatGETOptions(parameters);
 
@@ -370,13 +372,8 @@ function findVenue(parameters) {
             if (error) {
                 console.error('GET Error: ', error);
             } else {
-                console.log(body);
-                response = body.response;
+                callback(body);
             }
         });
     };
-
-    console.log(typeof(response));
-    console.log(response);
-    return response;
 }
