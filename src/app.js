@@ -397,6 +397,7 @@ function formatGETOptions(parameters) {
         venueType = parameters.venueType;
     }
 
+    console.log(defaultCategory);
     console.log('Address: ', isDefined(parameters.location));
     console.log('Coordinates: ', isDefined(parameters.coordinates));
     console.log('Venue: ', isDefined(parameters.venueType));
@@ -421,14 +422,16 @@ function formatGETOptions(parameters) {
 
 
     if (!isDefined(parameters.location)) {
+        console.log('Location defined');
         if (isDefined(parameters.location.location)) { //location as address
+            console.log('Location.location defined');
             location = parameters.location.location;
             options.qs.near = location;
         }
-        else if (isDefined(parameters.coordinates)) { //location as coordinates
-            location = parameters.location.coordinates.lat.concat(',', parameters.location.coordinates.long);
-            options.qs.ll = location;
-        }
+    } else if (isDefined(parameters.coordinates)) { //location as coordinates
+        console.log('Coordinates defined');
+        location = parameters.location.coordinates.lat.concat(', ', parameters.location.coordinates.long);
+        options.qs.ll = location;
     }
 
     if (!isDefined(location)) {
