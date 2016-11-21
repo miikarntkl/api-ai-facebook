@@ -131,6 +131,7 @@ function processEvent(event) {
 
 function processLocation(event, callback) {
     if (isDefined(event.message.attachments)) {
+        console.log('processing location');
         callback(event);
     }
 }
@@ -319,8 +320,9 @@ app.post('/webhook/', (req, res) => {
                     messaging_events.forEach((event) => {
                         if (event.message && event.message.attachments &&
                             event.message.attachments.length > 0) {
+                            console.log(event.message.attachments);
                             processLocation(event, (locEvent) => {
-                                process(locEvent);
+                                processEvent(locEvent);
                             });
                         } else if (event.message && !event.message.is_echo ||
                             event.postback && event.postback.payload) {
@@ -441,7 +443,10 @@ function formatGETOptions(parameters) {
         }
     } else if (isDefined(parameters.coordinates)) { //location as coordinates
         console.log('Coordinates defined');
-        options.qs.ll = parameters.coordinates.lat.concat(', ', parameters.coordinates.long);
+        let lat = parameters.coordinates.lat;
+        let long = parameters.coordinates.long;
+        console.log(typeof(lat));
+        options.qs.ll = lat.concat(', ', long);
     } else {
         return null;
     }
