@@ -35,6 +35,8 @@ var closestFirst = 0;
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
 
+const requestLocation = 'Please specify a valid location.';
+
 function processEvent(event) {
 
     var sender = event.sender.id.toString();
@@ -45,19 +47,7 @@ function processEvent(event) {
 
         /*
         var attachments = event.message.attachments;
-        console.log('Attachments: ', attachments);
-        
-        if (!isDefined(text) && attachments.type === 'location') {
-            console.log('Attachments only!');
-            let lat = attachments.coordinates.lat;
-            let long = attachments.coordinates.long;
-            console.log(typeof(lat));
-            text = 'Found coordinates';
-        }
-
-        console.log('Text status: ', !isDefined(text));
-        console.log('Attachment type: ', attachments.type);
-        console.log('Made it past location check');*/
+        */
 
         // Handle a message from this sender
 
@@ -114,10 +104,14 @@ function processEvent(event) {
                         if (isDefined(parameters)) {
                             findVenue(parameters, (foursquareResponse) => {
                                 if (isDefined(foursquareResponse)) {
-                                    console.log('Response is defined');
-                                    sendFBCardMessage(sender, formatVenueData(foursquareResponse));
+                                    let formatted = formatVenueData(foursquareResponse);
+                                    if (isDefined(formatted) && formatted.length > 0) {
+                                        sendFBCardMessage(sender, formatted);
+                                    } else {
+                                        textResponse(requestLocation, sender);
+                                    }
                                 } else {
-                                    textResponse('Please specify a valid location.', sender);
+                                    textResponse(requestLocation, sender);
                                 }
                             });
                         }
@@ -131,13 +125,6 @@ function processEvent(event) {
         apiaiRequest.end();
     }
 }
-/*
-function processLocation(event, callback) {
-    if (isDefined(event.message.attachments)) {
-        console.log('returning location event');
-        callback(event);
-    }
-}*/
 
 function textResponse(str, sender) {
     console.log('Response as text message');
@@ -321,13 +308,7 @@ app.post('/webhook/', (req, res) => {
                 let messaging_events = entry.messaging;
                 if (messaging_events) {
                     messaging_events.forEach((event) => {
-                        /*if (event.message && event.message.attachments &&
-                            event.message.attachments.length > 0) {
-                            console.log('processing location');
-                            processLocation(event, (locEvent) => {
-                                processEvent(locEvent);
-                            });
-                        } else*/ if (event.message && !event.message.is_echo ||
+                        if (event.message && !event.message.is_echo ||
                             event.postback && event.postback.payload) {
                             console.log('processing event');
                             processEvent(event);
@@ -356,6 +337,9 @@ app.listen(REST_PORT, () => {
 doSubscribeRequest();
 
 function formatVenueData(raw) {
+    if (!isDefined(raw.response.groups)) {
+        return null;
+    }
     var items = raw.response.groups[0].items;
     var venues = [];
     var j = 0;
@@ -370,6 +354,8 @@ function formatVenueData(raw) {
                 continue;
             }
             formatted.title = venue.name;
+
+            console.log('Venue photo count: ', venue.photos.count);
 
             if (isDefined(venue.hours) && isDefined(venue.hours.status)) {
                 formatted.subtitle = venue.hours.status;
@@ -393,15 +379,23 @@ function formatVenueData(raw) {
                 j++;
             }
 
-            formatted.buttons[j] = {
-                type: 'web_url',
-            };
-            if (isDefined(venue.location) && isDefined(venue.location.formattedAddress && venue.location.formattedAddress.length > 1)) {
-                formatted.buttons[j].title = venue.location.formattedAddress[0].concat(', ', venue.location.formattedAddress[1]);
-            } else {
-                formatted.buttons[j].title = venue.location.city;
+            if (isDefined(venue.location)) {
+                formatted.buttons[j] = {
+                    type: 'web_url',
+                    title: 'Show On Map',
+                };
+                var loc = null;
+                if (isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
+                    let lat = venue.location.lat;
+                    let long = venue.location.lng;
+                    loc = lat.toString().concat(',', long.toString());
+                }
+                if (isDefined(loc)) {
+                    formatted.buttons[j].url = 'http://maps.google.com/?q='.concat(loc);
+                } else {
+                    formatted.buttons.pop();
+                }
             }
-            formatted.buttons[j].url = 'http://maps.google.com/?q='.concat(formatted.buttons[j].title);
 
             venues.push(formatted);
         }
