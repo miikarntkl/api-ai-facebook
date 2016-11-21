@@ -113,10 +113,9 @@ function processEvent(event) {
         apiaiRequest.on('error', (error) => console.error(error));
         apiaiRequest.end();
     } else if (event.message && event.message.attachments) { //handle fb location sharing
-        console.log('Location made through!');
-
         if (isDefined(event.message.attachments[0].payload) && isDefined(event.message.attachments[0].payload.coordinates)) {
             if (isDefined(event.message.attachments[0].payload.coordinates.lat) && isDefined(event.message.attachments[0].payload.coordinates.long)) {
+                console.log('Location made through!');
                 parameters = {};
                 parameters.location = {};
                 parameters.location.coordinates = event.message.attachments[0].payload.coordinates;
