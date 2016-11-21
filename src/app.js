@@ -88,7 +88,7 @@ function processEvent(event) {
                 } else if (isDefined(responseText)) {
                     textResponse(responseText, sender);
                 } else if (isDefined(action) && isDefined(intentName)) {
-                    
+
                     if (action === actionFindVenue && intentName == intentFindVenue) {
                         if (isDefined(parameters)) {
 
@@ -97,7 +97,7 @@ function processEvent(event) {
                             findVenue(parameters, (foursquareResponse) => {
                                 if (isDefined(foursquareResponse)) {
                                     console.log('Response is defined');
-                                    sendFBCardMessage(foursquareResponse);
+                                    sendFBCardMessage('');
                                 }
                             });
                         }
@@ -198,7 +198,6 @@ function sendFBCardMessage (sender, messageData, callback) {
                         {
                           'title':'Welcome to Google',
                           'item_url':'https://www.google.com',
-                          'image_url':'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
                           'subtitle':'Search for anything',
                           'buttons':[
                             {
