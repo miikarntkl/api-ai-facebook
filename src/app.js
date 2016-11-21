@@ -53,6 +53,8 @@ function processEvent(event) {
             text = 'Found coordinates';
         }
 
+        console.log('Text status: ', !isDefined(text));
+        console.log('Attachment type: ', attachments.type);
         console.log('Made it past location check');
 
         // Handle a message from this sender
