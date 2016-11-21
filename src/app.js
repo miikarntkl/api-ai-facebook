@@ -182,7 +182,9 @@ function sendFBMessage(sender, messageData, callback) {
 }
 
 function sendFBCardMessage (sender, messageData, callback) {
-    console.log('Sending card message');
+    console.log('Sending card message: ');
+    console.log(messageData);
+
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: FB_PAGE_ACCESS_TOKEN},
