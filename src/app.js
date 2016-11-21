@@ -331,7 +331,7 @@ function parseVenueData(raw) {
     var items = raw.response.groups[0].items;
     var venues = [];
 
-    if (isDefined(data)) {
+    if (isDefined(items)) {
         for (let i = 0; i < suggestionLimit; i++) {
             var venue = {};
             var url = items[i].venue.url;
