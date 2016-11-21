@@ -53,6 +53,8 @@ function processEvent(event) {
             text = 'Found coordinates';
         }
 
+        console.log('Made it past location check');
+
         // Handle a message from this sender
 
         if (!sessionIds.has(sender)) {
@@ -128,7 +130,7 @@ function processEvent(event) {
 
 function processLocation(event, callback) {
     if (isDefined(event.message.attachments)) {
-        console.log('processing location');
+        console.log('returning location event');
         callback(event);
     }
 }
@@ -317,7 +319,7 @@ app.post('/webhook/', (req, res) => {
                     messaging_events.forEach((event) => {
                         if (event.message && event.message.attachments &&
                             event.message.attachments.length > 0) {
-                            console.log(event.message.attachments);
+                            console.log('processing location');
                             processLocation(event, (locEvent) => {
                                 processEvent(locEvent);
                             });
