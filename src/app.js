@@ -119,7 +119,9 @@ function processEvent(event) {
                 parameters = {};
                 parameters.location = {};
                 parameters.location.coordinates = event.message.attachments[0].payload.coordinates;
-                console.log(parameters.location.coordinates);
+                console.log(isDefined(paramters.location.coordinates));
+                console.log(parameters.location.coordinates.lat);
+                console.log(parameters.location.coordinates.long);
             }
         }
     }
