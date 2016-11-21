@@ -42,6 +42,8 @@ function processEvent(event) {
     if ((event.message && event.message.text) || (event.message && event.message.attachments) || (event.postback && event.postback.payload)) {
         
         var text = event.message ? event.message.text : event.postback.payload;
+
+        /*
         var attachments = event.message.attachments;
         console.log('Attachments: ', attachments);
         
@@ -55,7 +57,7 @@ function processEvent(event) {
 
         console.log('Text status: ', !isDefined(text));
         console.log('Attachment type: ', attachments.type);
-        console.log('Made it past location check');
+        console.log('Made it past location check');*/
 
         // Handle a message from this sender
 
@@ -129,13 +131,13 @@ function processEvent(event) {
         apiaiRequest.end();
     }
 }
-
+/*
 function processLocation(event, callback) {
     if (isDefined(event.message.attachments)) {
         console.log('returning location event');
         callback(event);
     }
-}
+}*/
 
 function textResponse(str, sender) {
     console.log('Response as text message');
@@ -319,13 +321,13 @@ app.post('/webhook/', (req, res) => {
                 let messaging_events = entry.messaging;
                 if (messaging_events) {
                     messaging_events.forEach((event) => {
-                        if (event.message && event.message.attachments &&
+                        /*if (event.message && event.message.attachments &&
                             event.message.attachments.length > 0) {
                             console.log('processing location');
                             processLocation(event, (locEvent) => {
                                 processEvent(locEvent);
                             });
-                        } else if (event.message && !event.message.is_echo ||
+                        } else*/ if (event.message && !event.message.is_echo ||
                             event.postback && event.postback.payload) {
                             console.log('processing event');
                             processEvent(event);
@@ -339,8 +341,7 @@ app.post('/webhook/', (req, res) => {
             status: "ok"
         });
     } catch (err) {
-        console.log('Error in webhook!');
-        return res.status(420).json({
+        return res.status(400).json({
             status: "error",
             error: err
         });
