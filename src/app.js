@@ -36,6 +36,7 @@ const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
 
 function processEvent(event) {
+
     var sender = event.sender.id.toString();
 
     if ((event.message && event.message.text) || (event.message && event.message.attachments) || (event.postback && event.postback.payload)) {
@@ -110,7 +111,7 @@ function processEvent(event) {
                                     console.log('Response is defined');
                                     sendFBCardMessage(sender, formatVenueData(foursquareResponse));
                                 } else {
-                                    textResponse('Please specify a location.', sender);
+                                    textResponse('Please specify a valid location.', sender);
                                 }
                             });
                         }
@@ -202,7 +203,7 @@ function sendFBMessage(sender, messageData, callback) {
 }
 
 function sendFBCardMessage (sender, messageData, callback) {
-    console.log('Sending card message: ');
+    console.log('Sending card message');
 
     var cardOptions = {
         url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -334,6 +335,7 @@ app.post('/webhook/', (req, res) => {
             status: "ok"
         });
     } catch (err) {
+        console.log('Error in webhook!')
         return res.status(400).json({
             status: "error",
             error: err
@@ -359,6 +361,9 @@ function formatVenueData(raw) {
             var url = venue.url;
 
             var formatted = {};
+            if (!isDefined(venue.name)) {
+                continue;
+            }
             formatted.title = venue.name;
 
             if (isDefined(venue.hours) && isDefined(venue.hours.status)) {
@@ -407,7 +412,6 @@ function formatGETOptions(parameters) {
         venueType = parameters.venueType;
     }
 
-    console.log(defaultCategory);
     console.log('Address: ', isDefined(parameters.location));
     console.log('Coordinates: ', isDefined(parameters.coordinates));
     console.log('Venue: ', isDefined(parameters.venueType));
@@ -448,8 +452,6 @@ function formatGETOptions(parameters) {
     } else {
         return null;
     }
-
-    console.log('Location: ', options.qs.ll);
 
     return options;
 }
