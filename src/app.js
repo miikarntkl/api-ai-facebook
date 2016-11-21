@@ -440,8 +440,8 @@ function formatGETOptions(parameters) {
         if (isDefined(parameters.location.location)) { //location as address
             options.qs.near = parameters.location.location;
         }
-    } else if (isDefined(parameters.coordinates)) { //location as coordinates
-        console.log('Coordinates defined');
+    } else if (isDefined(parameters.coordinates) && isDefined(parameters.coordinates.lat) && isDefined(parameters.coordinates.long) {
+        console.log('Coordinates defined'); //location as coordinates
         let lat = parameters.coordinates.lat;
         let long = parameters.coordinates.long;
         if (lat > 90 || lat < -90 || long > 180 || long < -180) {
