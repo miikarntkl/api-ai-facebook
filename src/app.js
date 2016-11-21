@@ -426,8 +426,8 @@ function formatGETOptions(parameters) {
             section: venueType,
             limit: suggestionLimit,
             sortByDistance: closestFirst,
+            venuePhotos: 1,
         },
-        venuePhotos: 1,
         json: true,
     };
 
