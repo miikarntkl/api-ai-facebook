@@ -28,7 +28,7 @@ const foursquareCategories = {
     arts: 'arts',
     topPicks: 'topPicks',
 };
-const defaultCategory = foursquareCategories[5];
+const defaultCategory = foursquareCategories.topPicks;
 var suggestionLimit = 3;
 var closestFirst = 0;
 
@@ -391,7 +391,6 @@ function formatVenueData(raw) {
 function formatGETOptions(parameters) {
 
     var venueType = defaultCategory;
-    var location = null;
 
     if (!isDefined(parameters.venueType)) {
         venueType = parameters.venueType;
@@ -425,20 +424,16 @@ function formatGETOptions(parameters) {
         console.log('Location defined');
         if (isDefined(parameters.location.location)) { //location as address
             console.log('Location.location defined');
-            location = parameters.location.location;
-            options.qs.near = location;
+            options.qs.near = parameters.location.location;
         }
     } else if (isDefined(parameters.coordinates)) { //location as coordinates
         console.log('Coordinates defined');
-        location = parameters.location.coordinates.lat.concat(', ', parameters.location.coordinates.long);
-        options.qs.ll = location;
-    }
-
-    if (!isDefined(location)) {
+        options.qs.ll = parameters.location.coordinates.lat.concat(', ', parameters.location.coordinates.long);
+    } else {
         return null;
     }
 
-    console.log('Location: ', location);
+    console.log('Location: ', options.qs.ll);
 
     return options;
 }
