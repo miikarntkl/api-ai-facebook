@@ -115,16 +115,20 @@ function processEvent(event) {
     } else if (event.message && event.message.attachments) { //handle fb location sharing
         if (isDefined(event.message.attachments[0].payload) && isDefined(event.message.attachments[0].payload.coordinates)) {
             if (isDefined(event.message.attachments[0].payload.coordinates.lat) && isDefined(event.message.attachments[0].payload.coordinates.long)) {
-                console.log('Location made through!');
-                parameters = {};
-                parameters.location = {};
-                parameters.location.coordinates = event.message.attachments[0].payload.coordinates;
-                console.log(isDefined(paramters.location.coordinates));
-                console.log(parameters.location.coordinates.lat);
-                console.log(parameters.location.coordinates.long);
+                passCoordinates(sender, event.message.attachments[0].payload.coordinates);
             }
         }
     }
+}
+
+function passCoordinates(sender, coordinates) {
+    console.log('Location made through!');
+    parameters = {};
+    parameters.location = {};
+    parameters.location.coordinates = coordinates;
+    console.log(isDefined(parameters.location.coordinates));
+    console.log(parameters.location.coordinates.lat);
+    console.log(parameters.location.coordinates.long);
 }
 
 function textResponse(str, sender) {
