@@ -29,6 +29,7 @@ const foursquareCategories = {
     topPicks: 'topPicks',
 };
 var suggestionLimit = 3;
+var closestFirst = 0;
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -375,7 +376,7 @@ function formatVenueData(raw) {
 
 function formatGETOptions(parameters) {
 
-    var venueType = parameters.venue;
+    var venueType = parameters.venueType;
     var location = parameters.location.location;
 
     if (!isDefined(venueType)) {
@@ -397,6 +398,7 @@ function formatGETOptions(parameters) {
             near: location,
             section: venueType,
             limit: suggestionLimit,
+            sortByDistance: closestFirst,
         },
         venuePhotos: 1,
         json: true,
