@@ -112,13 +112,13 @@ function processEvent(event) {
 
         apiaiRequest.on('error', (error) => console.error(error));
         apiaiRequest.end();
-    } else if (event.message && event.message.attachments) { //handle fb location sharing
+    } /*else if (event.message && event.message.attachments) { //handle fb location sharing
         if (isDefined(event.message.attachments[0].payload) && isDefined(event.message.attachments[0].payload.coordinates)) {
             if (isDefined(event.message.attachments[0].payload.coordinates.lat) && isDefined(event.message.attachments[0].payload.coordinates.long)) {
                 passCoordinates(sender, event.message.attachments[0].payload.coordinates);
             }
         }
-    }
+    }*/
 }
 
 function passCoordinates(sender, coordinates) {
