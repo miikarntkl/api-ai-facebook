@@ -441,7 +441,9 @@ function formatGETOptions(parameters) {
         console.log('Coordinates defined');
         let lat = parameters.coordinates.lat;
         let long = parameters.coordinates.long;
-        console.log(typeof(lat));
+        if (lat > 90 || lat < -90 || long > 180 || long < -180) {
+            return null;
+        }
         options.qs.ll = lat.toString().concat(', ', long.toString());
     } else {
         return null;
