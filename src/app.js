@@ -411,7 +411,7 @@ function formatGETOptions(parameters) {
     console.log('Venue: ', options.qs.section);
 
 
-    if (!isDefined(parameters.location)) {
+    if (isDefined(parameters.location)) {
         console.log('Location defined');
         if (isDefined(parameters.location.location)) { //location as address
             console.log('Location.location defined');
