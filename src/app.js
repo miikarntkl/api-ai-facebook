@@ -450,6 +450,6 @@ function findVenue(parameters, callback) {
             }
         });
     } else {
-        callback(null)
+        callback(null);
     }
 }
