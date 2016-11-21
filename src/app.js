@@ -28,10 +28,9 @@ const foursquareCategories = {
     arts: 'arts',
     topPicks: 'topPicks',
 };
+const defaultCategory = foursquareCategories[5];
 var suggestionLimit = 3;
 var closestFirst = 0;
-var venueType = 'topPicks';
-var location = null;
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -390,6 +389,9 @@ function formatVenueData(raw) {
 }
 
 function formatGETOptions(parameters) {
+
+    var venueType = defaultCategory;
+    var location = null;
 
     if (!isDefined(parameters.venueType)) {
         venueType = parameters.venueType;
