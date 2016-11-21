@@ -347,16 +347,25 @@ function formatVenueData(raw) {
     if (isDefined(items)) {
         for (let i = 0; i < suggestionLimit; i++) {
             var venue = items[i].venue;
-            var url = venue.url;
 
+            //add venue name
             var formatted = {};
             if (!isDefined(venue.name)) {
                 continue;
             }
             formatted.title = venue.name;
 
-            console.log('Venue photo count: ', venue.photos.count);
+            //add venue photo
+            if (venue.photos.count > 0 && isDefined(venue.photos.groups[0])) {
+                let prefix = venue.photos.groups[0].items[0].prefix;
+                let suffix = venue.photos.groups[0].items[0].suffix;
+                let original = 'original';
 
+                console.log('Prefix: ', );
+                console.log('Suffix: ', );
+            }
+
+            //add venue hours
             if (isDefined(venue.hours) && isDefined(venue.hours.status)) {
                 formatted.subtitle = venue.hours.status;
             } else {
@@ -366,24 +375,22 @@ function formatVenueData(raw) {
             formatted.buttons = [];
             j = 0;
 
+            //add link to venue
             formatted.buttons[j] = {
                 type: 'web_url',
                 title: 'View Website',
             };
 
-            if (isDefined(url)) {
-                formatted.buttons[j].url = url;
+            if (isDefined(venue.url)) {
+                formatted.buttons[j].url = venue.url;
                 j++;
             } else {
                 formatted.buttons[j].url = 'http://foursquare.com/v/'.concat(venue.id);
                 j++;
             }
 
+            //add link to venue's location on google maps
             if (isDefined(venue.location)) {
-                formatted.buttons[j] = {
-                    type: 'web_url',
-                    title: 'Show On Map',
-                };
                 var loc = null;
                 if (isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
                     let lat = venue.location.lat;
@@ -391,9 +398,11 @@ function formatVenueData(raw) {
                     loc = lat.toString().concat(',', long.toString());
                 }
                 if (isDefined(loc)) {
+                    formatted.buttons[j] = {
+                        type: 'web_url',
+                        title: 'Show On Map',
+                    };
                     formatted.buttons[j].url = 'http://maps.google.com/?q='.concat(loc);
-                } else {
-                    formatted.buttons.pop();
                 }
             }
 
