@@ -417,6 +417,7 @@ function formatGETOptions(parameters) {
         json: true,
     };
 
+    console.log('VenueType: ', venueType);
     console.log('Venue: ', options.qs.section);
 
 
