@@ -360,9 +360,7 @@ function formatVenueData(raw) {
                 let prefix = venue.photos.groups[0].items[0].prefix;
                 let suffix = venue.photos.groups[0].items[0].suffix;
                 let original = 'original';
-
-                console.log('Prefix: ', prefix);
-                console.log('Suffix: ', suffix);
+                formatted.image_url = prefix.concat(original, suffix);
             }
 
             //add venue hours
