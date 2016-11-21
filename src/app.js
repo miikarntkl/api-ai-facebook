@@ -117,16 +117,6 @@ function processEvent(event) {
     }*/
 }
 
-function passCoordinates(sender, coordinates) {
-    console.log('Location made through!');
-    parameters = {};
-    parameters.location = {};
-    parameters.location.coordinates = coordinates;
-    console.log(isDefined(parameters.location.coordinates));
-    console.log(parameters.location.coordinates.lat);
-    console.log(parameters.location.coordinates.long);
-}
-
 function textResponse(str, sender) {
     console.log('Response as text message');
         // facebook API limit for text length is 320,
@@ -392,7 +382,7 @@ function formatGETOptions(parameters) {
 
     var venueType = defaultCategory;
 
-    if (!isDefined(parameters.venueType)) {
+    if (isDefined(parameters.venueType)) {
         venueType = parameters.venueType;
     }
 
