@@ -361,8 +361,8 @@ function formatVenueData(raw) {
                 let suffix = venue.photos.groups[0].items[0].suffix;
                 let original = 'original';
 
-                console.log('Prefix: ', );
-                console.log('Suffix: ', );
+                console.log('Prefix: ', prefix);
+                console.log('Suffix: ', suffix);
             }
 
             //add venue hours
