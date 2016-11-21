@@ -94,9 +94,6 @@ function processEvent(event) {
 
                     if (action === actionFindVenue && intentName == intentFindVenue) {
                         if (isDefined(parameters)) {
-
-                            console.log('Sender: ', sender);
-
                             findVenue(parameters, (foursquareResponse) => {
                                 if (isDefined(foursquareResponse)) {
                                     console.log('Response is defined');
@@ -398,6 +395,10 @@ function formatGETOptions(parameters) {
         venueType = parameters.venueType;
     }
 
+    console.log('Address: ', isDefined(parameters.location));
+    console.log('Coordinates: ', isDefined(parameters.coordinates));
+    console.log('Venue: ', isDefined(parameters.venueType));
+
     var options = {
         method: 'GET',
         url: 'http://api.foursquare.com/v2/venues/explore',
@@ -416,12 +417,13 @@ function formatGETOptions(parameters) {
 
     console.log('Venue: ', options.qs.section);
 
+
     if (!isDefined(parameters.location)) {
         if (isDefined(parameters.location.location)) { //location as address
             location = parameters.location.location;
             options.qs.near = location;
         }
-        else if (isDefined(parameters.location.coordinates)) { //location as coordinates
+        else if (isDefined(parameters.coordinates)) { //location as coordinates
             location = parameters.location.coordinates.lat.concat(',', parameters.location.coordinates.long);
             options.qs.ll = location;
         }
