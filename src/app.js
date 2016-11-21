@@ -30,6 +30,8 @@ const foursquareCategories = {
 };
 var suggestionLimit = 3;
 var closestFirst = 0;
+var venueType = 'topPicks';
+var location = null;
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -40,7 +42,7 @@ function processEvent(event) {
     if ((event.message && event.message.text) || (event.postback && event.postback.payload)) {
         var text = event.message ? event.message.text : event.postback.payload;
         // Handle a text message from this sender
-        console.log('Location made through!');
+
         if (!sessionIds.has(sender)) {
             sessionIds.set(sender, uuid.v1());
         }
@@ -110,6 +112,16 @@ function processEvent(event) {
 
         apiaiRequest.on('error', (error) => console.error(error));
         apiaiRequest.end();
+    } else if (event.message && event.message.attachments) { //handle fb location sharing
+        console.log('Location made through!');
+
+        if (isDefined(event.message.attachments[0].payload) && isDefined(event.message.attachments[0].payload.coordinates)) {
+            if (isDefined(event.message.attachments[0].payload.coordinates.lat) && isDefined(event.message.attachments[0].payload.coordinates.long)) {
+                parameters = {};
+                parameters.location = {};
+                parameters.location.coordinates = event.message.attachments[0].payload.coordinates;
+            }
+        }
     }
 }
 
@@ -202,7 +214,7 @@ function sendFBCardMessage (sender, messageData, callback) {
                 }
             }
         }
-    }
+    };
 
     for (let i = 0; i < suggestionLimit; i++) {
         cardOptions.json.message.attachment.payload.elements.push(messageData[i]);
@@ -376,15 +388,8 @@ function formatVenueData(raw) {
 
 function formatGETOptions(parameters) {
 
-    var venueType = parameters.venueType;
-    var location = parameters.location.location;
-
-    if (!isDefined(venueType)) {
-        venueType = foursquareCategories.topPicks;
-    }
-
-    if (!isDefined(location)) {
-        return null;
+    if (!isDefined(parameters.venueType)) {
+        venueType = parameters.venueType;
     }
 
     var options = {
@@ -395,7 +400,6 @@ function formatGETOptions(parameters) {
             client_secret: FS_CLIENT_SECRET,
             v: foursquareVersion,
             m: 'foursquare',
-            near: location,
             section: venueType,
             limit: suggestionLimit,
             sortByDistance: closestFirst,
@@ -405,7 +409,23 @@ function formatGETOptions(parameters) {
     };
 
     console.log('Venue: ', options.qs.section);
-    console.log('Location: ', options.qs.near);
+
+    if (!isDefined(parameters.location)) {
+        if (isDefined(parameters.location.location)) { //location as address
+            location = parameters.location.location;
+            options.qs.near = location;
+        }
+        else if (isDefined(parameters.location.coordinates)) { //location as coordinates
+            location = parameters.location.coordinates.lat.concat(',', parameters.location.coordinates.long);
+            options.qs.ll = location;
+        }
+    }
+
+    if (!isDefined(location)) {
+        return null;
+    }
+
+    console.log('Location: ', location);
 
     return options;
 }
