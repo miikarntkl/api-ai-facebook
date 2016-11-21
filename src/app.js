@@ -40,8 +40,9 @@ function processEvent(event) {
 
     if ((event.message && event.message.text) || (event.message && event.message.attachments) || (event.postback && event.postback.payload)) {
         
-        var text = event.message ? event.message.text : event.postback.payload
+        var text = event.message ? event.message.text : event.postback.payload;
         var attachments = event.message.attachments;
+        console.log('Attachments: ', attachments);
         /*if (isDefined(attachments)) {
             if (isDefined(attachments[0].payload) && isDefined(attachments[0].payload.coordinates)) {
                 if (isDefined(attachments[0].payload.coordinates.lat) && isDefined(attachments[0].payload.coordinates.long)) {
@@ -49,6 +50,8 @@ function processEvent(event) {
                 }
             }
         }*/
+
+
         if (!isDefined(text)) {
             console.log('Attachments only!');
         }
@@ -126,6 +129,12 @@ function processEvent(event) {
     }
 }
 
+function processLocation(event, callback) {
+    if (isDefined(event.message.attachments)) {
+        callback(event);
+    }
+}
+
 function textResponse(str, sender) {
     console.log('Response as text message');
         // facebook API limit for text length is 320,
@@ -166,7 +175,7 @@ function chunkString(s, len) {
                     break;
                 }
                 currReverse--;
-            } while (currReverse > prev)
+            } while (currReverse > prev);
         }
     }
     output.push(s.substr(prev));
@@ -197,7 +206,6 @@ function sendFBMessage(sender, messageData, callback) {
 
 function sendFBCardMessage (sender, messageData, callback) {
     console.log('Sending card message: ');
-    console.log(messageData);
 
     var cardOptions = {
         url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -309,7 +317,12 @@ app.post('/webhook/', (req, res) => {
                 let messaging_events = entry.messaging;
                 if (messaging_events) {
                     messaging_events.forEach((event) => {
-                        if (event.message && !event.message.is_echo ||
+                        if (event.message && event.message.attachments &&
+                            event.message.attachments.length > 0) {
+                            processLocation(event, (locEvent) => {
+                                process(locEvent);
+                            });
+                        } else if (event.message && !event.message.is_echo ||
                             event.postback && event.postback.payload) {
                             console.log('processing event');
                             processEvent(event);
@@ -424,12 +437,11 @@ function formatGETOptions(parameters) {
     if (isDefined(parameters.location)) {
         console.log('Location defined');
         if (isDefined(parameters.location.location)) { //location as address
-            console.log('Location.location defined');
             options.qs.near = parameters.location.location;
         }
     } else if (isDefined(parameters.coordinates)) { //location as coordinates
         console.log('Coordinates defined');
-        options.qs.ll = parameters.location.coordinates.lat.concat(', ', parameters.location.coordinates.long);
+        options.qs.ll = parameters.coordinates.lat.concat(', ', parameters.coordinates.long);
     } else {
         return null;
     }
