@@ -43,17 +43,13 @@ function processEvent(event) {
         var text = event.message ? event.message.text : event.postback.payload;
         var attachments = event.message.attachments;
         console.log('Attachments: ', attachments);
-        /*if (isDefined(attachments)) {
-            if (isDefined(attachments[0].payload) && isDefined(attachments[0].payload.coordinates)) {
-                if (isDefined(attachments[0].payload.coordinates.lat) && isDefined(attachments[0].payload.coordinates.long)) {
-                    text = attachments[0].payload.coordinates.lat.concat(', ', attachments[0].payload.coordinates.long);
-                }
-            }
-        }*/
-
-
-        if (!isDefined(text)) {
+        
+        if (!isDefined(text) && attachments.type === 'location') {
             console.log('Attachments only!');
+            let lat = attachments.coordinates.lat;
+            let long = attachments.coordinates.long;
+            console.log(typeof(lat));
+            text = 'Found coordinates';
         }
 
         // Handle a message from this sender
