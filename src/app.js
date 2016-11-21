@@ -339,7 +339,7 @@ app.post('/webhook/', (req, res) => {
             status: "ok"
         });
     } catch (err) {
-        console.log('Error in webhook!')
+        console.log('Error in webhook!');
         return res.status(420).json({
             status: "error",
             error: err
