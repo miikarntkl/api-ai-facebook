@@ -97,7 +97,7 @@ function processEvent(event) {
                             findVenue(parameters, (foursquareResponse) => {
                                 if (isDefined(foursquareResponse)) {
                                     console.log('Response is defined');
-                                    sendFBCardMessage(sender, parseVenueData(foursquareResponse));
+                                    sendFBCardMessage(sender, formatVenueData(foursquareResponse));
                                 }
                             });
                         }
@@ -185,16 +185,16 @@ function sendFBCardMessage (sender, messageData, callback) {
     console.log('Sending card message: ');
     console.log(messageData);
 
-    request({
+    var cardOptions = {
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: FB_PAGE_ACCESS_TOKEN},
         method: 'POST',
         json: {
             recipient: {id: sender},
             message: {
-                'attachment':{
+                'attachment': {
                     'type':'template',
-                    'payload':{
+                    'payload': {
                       'template_type':'generic',
                       'elements':[
                         {
@@ -214,9 +214,15 @@ function sendFBCardMessage (sender, messageData, callback) {
                 }
             }
         }
-    }, (error, response, body) => {
+    }
+
+    for (let i = 0; i < suggestionLimit; i++) {
+        cardOptions.json.message.attachment.payload.elements.push()
+    }
+
+    request(cardOptions, (error, response, body) => {
         if (error) {
-            console.log('Error sending card message: ', error);
+            console.log('Error sending card: ', error);
         } else if (response.body.error) {
             console.log('Error: ', response.body.error);
         }
@@ -329,28 +335,54 @@ app.listen(REST_PORT, () => {
 
 doSubscribeRequest();
 
-function parseVenueData(raw) {
+function formatVenueData(raw) {
     var items = raw.response.groups[0].items;
     var venues = [];
+    var j = 0;
 
     if (isDefined(items)) {
-        console.log(items);
         for (let i = 0; i < suggestionLimit; i++) {
-            var venue = {};
-            var url = items[i].venue.url;
+            var venue = items[i].venue;
+            var url = venue.url;
 
-            venue.name = items[i].venue.name;
-            if (isDefined(url)) {
-                venue.url = url;
+            var formatted = {};
+            formatted.title = venue.name;
+
+            if (isDefined(venue.hours) && isDefined(venue.hours.status)) {
+                formatted.subtitle = venue.hours.status;
             } else {
-                venue.url = 'http://foursquare.com/v/'.concat(items[i].venue.id);
+                formatted.subtitle = '';
             }
-            venue.status = items[i].venue.hours.status;
 
-            venues.push(venue);
+            formatted.buttons = [];
+            j = 0;
+
+            formatted.buttons[j] = {
+                type: 'web_url',
+                title: 'View Website',
+            };
+
+            if (isDefined(url)) {
+                formatted.buttons[j].url = url;
+                j++;
+            } else {
+                formatted.buttons[j].url = 'http://foursquare.com/v/'.concat(venue.id);
+                j++;
+            }
+
+            formatted.buttons[j] = {
+                type: 'web_url',
+            };
+            if (isDefined(venue.location) && isDefined(venue.location.formattedAddress && venue.location.formattedAddress.length > 1)) {
+                formatted.buttons[j].title = venue.location.formattedAddress[0].concat(', ', venue.location.formattedAddress[1]);
+            } else {
+                formatted.buttons[j].title = venue.location.city;
+            }
+            formatted.buttons[j].url = 'http://maps.google.com/?q='.concat(formatted.buttons[j].title);
+
+            venues.push(formatted);
         }
     }
-
     return venues;
 }
 
