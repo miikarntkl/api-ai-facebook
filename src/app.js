@@ -97,7 +97,7 @@ function processEvent(event) {
                             findVenue(parameters, (foursquareResponse) => {
                                 if (isDefined(foursquareResponse)) {
                                     console.log('Response is defined');
-                                    sendFBCardMessage(sender, foursquareResponse);
+                                    sendFBCardMessage(sender, parseVenueData(foursquareResponse));
                                 }
                             });
                         }
@@ -327,6 +327,30 @@ app.listen(REST_PORT, () => {
 
 doSubscribeRequest();
 
+function parseVenueData(raw) {
+    var items = raw.response.groups[0].items;
+    var venues = [];
+
+    if (isDefined(data)) {
+        for (let i = 0; i < suggestionLimit; i++) {
+            var venue = {};
+            var url = items[i].venue.url;
+
+            venue.name = items[i].venue.name;
+            if (isDefined(url)) {
+                venue.url = url;
+            } else {
+                venue.url = 'http://foursquare.com/v/'.concat(items[i].venue.id);
+            }
+            venue.status = items[i].venue.hours.status;
+
+            venues.push(venue);
+        }
+    }
+
+    return venues;
+}
+
 function formatGETOptions(parameters) {
 
     var venueType = parameters.venue;
@@ -374,5 +398,5 @@ function findVenue(parameters, callback) {
                 callback(body);
             }
         });
-    };
+    }
 }
