@@ -446,7 +446,7 @@ function formatGETOptions(parameters) {
         let lat = parameters.coordinates.lat;
         let long = parameters.coordinates.long;
         console.log(typeof(lat));
-        options.qs.ll = lat.concat(', ', long);
+        options.qs.ll = lat.toString().concat(', ', long.toString());
     } else {
         return null;
     }
