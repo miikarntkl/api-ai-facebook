@@ -92,12 +92,12 @@ function processEvent(event) {
                     if (action === actionFindVenue && intentName == intentFindVenue) {
                         if (isDefined(parameters)) {
 
-                            console.log('Found parameters');
+                            console.log('Sender: ', sender);
 
                             findVenue(parameters, (foursquareResponse) => {
                                 if (isDefined(foursquareResponse)) {
                                     console.log('Response is defined');
-                                    sendFBCardMessage('');
+                                    sendFBCardMessage(sender, foursquareResponse);
                                 }
                             });
                         }
