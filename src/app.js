@@ -28,7 +28,7 @@ const foursquareCategories = {
     arts: 'arts',
     topPicks: 'topPicks',
 };
-var suggestionLimit = 1;
+var suggestionLimit = 3;
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -196,20 +196,7 @@ function sendFBCardMessage (sender, messageData, callback) {
                     'type':'template',
                     'payload': {
                       'template_type':'generic',
-                      'elements':[
-                        {
-                          'title':'Welcome to Google',
-                          'item_url':'https://www.google.com',
-                          'subtitle':'Search for anything',
-                          'buttons':[
-                            {
-                              'type':'web_url',
-                              'url':'https://www.google.com',
-                              'title':'View Website'
-                            },          
-                          ]
-                        }
-                      ]
+                      'elements':[]
                     }
                 }
             }
@@ -217,7 +204,7 @@ function sendFBCardMessage (sender, messageData, callback) {
     }
 
     for (let i = 0; i < suggestionLimit; i++) {
-        cardOptions.json.message.attachment.payload.elements.push()
+        cardOptions.json.message.attachment.payload.elements.push(messageData[i]);
     }
 
     request(cardOptions, (error, response, body) => {
