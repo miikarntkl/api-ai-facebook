@@ -7,7 +7,6 @@ const uuid = require('node-uuid');
 const request = require('request');
 const JSONbig = require('json-bigint');
 const async = require('async');
-const http = require('http');
 
 const REST_PORT = (process.env.PORT || 5000);
 const APIAI_ACCESS_TOKEN = process.env.APIAI_ACCESS_TOKEN;
@@ -21,6 +20,15 @@ const apiAiService = apiai(APIAI_ACCESS_TOKEN, {language: APIAI_LANG, requestSou
 const sessionIds = new Map();
 
 const foursquareVersion = '20160108';
+const foursquareCategories = {
+    food: 'food',
+    drinks: 'drinks',
+    coffee: 'coffee',
+    shops: 'shops',
+    arts: 'arts',
+    topPicks: 'topPicks',
+};
+var suggestionLimit = 3;
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -78,22 +86,19 @@ function processEvent(event) {
                         });
                     }
                 } else if (isDefined(responseText)) {
-                    console.log('Response as text message');
-                    // facebook API limit for text length is 320,
-                    // so we must split message if needed
-                    var splittedText = splitResponse(responseText);
-
-                    async.eachSeries(splittedText, (textPart, callback) => {
-                        sendFBMessage(sender, {text: textPart}, callback);
-                    });
+                    textResponse(responseText, sender);
                 } else if (isDefined(action) && isDefined(intentName)) {
+
                     if (action === actionFindVenue && intentName == intentFindVenue) {
                         if (isDefined(parameters)) {
-                            console.log('Found parameters');
-                            var foursquareResponse = splitResponse(findVenue(parameters));
 
-                            async.eachSeries(splittedText, (textPart, callback) => {
-                                sendFBMessage(sender, {text: textPart}, callback);
+                            console.log('Sender: ', sender);
+
+                            findVenue(parameters, (foursquareResponse) => {
+                                if (isDefined(foursquareResponse)) {
+                                    console.log('Response is defined');
+                                    sendFBCardMessage(sender, formatVenueData(foursquareResponse));
+                                }
                             });
                         }
                     }
@@ -105,6 +110,17 @@ function processEvent(event) {
         apiaiRequest.on('error', (error) => console.error(error));
         apiaiRequest.end();
     }
+}
+
+function textResponse(str, sender) {
+    console.log('Response as text message');
+        // facebook API limit for text length is 320,
+        // so we must split message if needed
+    var splittedText = splitResponse(str);
+
+    async.eachSeries(splittedText, (textPart, callback) => {
+        sendFBMessage(sender, {text: textPart}, callback);
+    });
 }
 
 function splitResponse(str) {
@@ -155,6 +171,45 @@ function sendFBMessage(sender, messageData, callback) {
     }, (error, response, body) => {
         if (error) {
             console.log('Error sending message: ', error);
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error);
+        }
+
+        if (callback) {
+            callback();
+        }
+    });
+}
+
+function sendFBCardMessage (sender, messageData, callback) {
+    console.log('Sending card message: ');
+    console.log(messageData);
+
+    var cardOptions = {
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token: FB_PAGE_ACCESS_TOKEN},
+        method: 'POST',
+        json: {
+            recipient: {id: sender},
+            message: {
+                'attachment': {
+                    'type':'template',
+                    'payload': {
+                      'template_type':'generic',
+                      'elements':[]
+                    }
+                }
+            }
+        }
+    }
+
+    for (let i = 0; i < suggestionLimit; i++) {
+        cardOptions.json.message.attachment.payload.elements.push(messageData[i]);
+    }
+
+    request(cardOptions, (error, response, body) => {
+        if (error) {
+            console.log('Error sending card: ', error);
         } else if (response.body.error) {
             console.log('Error: ', response.body.error);
         }
@@ -267,46 +322,103 @@ app.listen(REST_PORT, () => {
 
 doSubscribeRequest();
 
-function formatGETOptions(parameters) {
+function formatVenueData(raw) {
+    var items = raw.response.groups[0].items;
+    var venues = [];
+    var j = 0;
 
-    var options = {
-        near: '&near='.concat(parameters.address),
-        query: '&query='.concat(parameters.venue),
-        limit: '&limit=5'
-    };
+    if (isDefined(items)) {
+        for (let i = 0; i < suggestionLimit; i++) {
+            var venue = items[i].venue;
+            var url = venue.url;
 
-    var httpOptions = {
-    host: 'api.foursquare.com/v2',
-    port: 80,
-    path: '/venues/search?'.concat('client_id=', FS_CLIENT_ID,
-        '&client_secret=', FS_CLIENT_SECRET,
-        '&v=', foursquareVersion,
-        '&m=foursquare',
-        options.near,
-        options.query,
-        options.limit)
-    };
+            var formatted = {};
+            formatted.title = venue.name;
 
-    console.log(httpOptions.path);
+            if (isDefined(venue.hours) && isDefined(venue.hours.status)) {
+                formatted.subtitle = venue.hours.status;
+            } else {
+                formatted.subtitle = '';
+            }
 
-    return httpOptions;
+            formatted.buttons = [];
+            j = 0;
+
+            formatted.buttons[j] = {
+                type: 'web_url',
+                title: 'View Website',
+            };
+
+            if (isDefined(url)) {
+                formatted.buttons[j].url = url;
+                j++;
+            } else {
+                formatted.buttons[j].url = 'http://foursquare.com/v/'.concat(venue.id);
+                j++;
+            }
+
+            formatted.buttons[j] = {
+                type: 'web_url',
+            };
+            if (isDefined(venue.location) && isDefined(venue.location.formattedAddress && venue.location.formattedAddress.length > 1)) {
+                formatted.buttons[j].title = venue.location.formattedAddress[0].concat(', ', venue.location.formattedAddress[1]);
+            } else {
+                formatted.buttons[j].title = venue.location.city;
+            }
+            formatted.buttons[j].url = 'http://maps.google.com/?q='.concat(formatted.buttons[j].title);
+
+            venues.push(formatted);
+        }
+    }
+    return venues;
 }
 
-function findVenue(parameters) {
+function formatGETOptions(parameters) {
 
-    var response = "";
+    var venueType = parameters.venue;
+    var location = parameters.location.location;
+
+    if (!isDefined(venueType)) {
+        venueType = foursquareCategories.topPicks;
+    }
+
+    if (!isDefined(location)) {
+        return null;
+    }
+
+    var options = {
+        method: 'GET',
+        url: 'http://api.foursquare.com/v2/venues/explore',
+        qs: {
+            client_id: FS_CLIENT_ID,
+            client_secret: FS_CLIENT_SECRET,
+            v: foursquareVersion,
+            m: 'foursquare',
+            near: location,
+            section: venueType,
+            limit: suggestionLimit,
+        },
+        venuePhotos: 1,
+        json: true,
+    };
+
+    console.log('Venue: ', options.qs.section);
+    console.log('Location: ', options.qs.near);
+
+    return options;
+}
+
+function findVenue(parameters, callback) {
 
     var options = formatGETOptions(parameters);
 
-    var str = '';
-    http.get(options, function(response){
-        response.on('data', function(chunk){
-            str += chunk;
+    if (isDefined(options)) {
+        request(options, (error, res, body) => {  
+            if (error) {
+                console.error('GET Error: ', error);
+            } else {
+                callback(body);
+            }
         });
-    }).on('error', function(e){
-    console.log('GET error: ' + e.message);
-    });
-
-    console.log(str);
-    return str;
+    }
 }
