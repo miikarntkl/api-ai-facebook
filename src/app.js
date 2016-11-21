@@ -310,6 +310,7 @@ app.post('/webhook/', (req, res) => {
                     messaging_events.forEach((event) => {
                         if (event.message && !event.message.is_echo ||
                             event.postback && event.postback.payload) {
+                            console.log('processing event');
                             processEvent(event);
                         }
                     });
