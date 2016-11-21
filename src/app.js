@@ -40,18 +40,19 @@ function processEvent(event) {
 
     if ((event.message && event.message.text) || (event.message && event.message.attachments) || (event.postback && event.postback.payload)) {
         
-        var text;
+        var text = event.message ? event.message.text : event.postback.payload
         var attachments = event.message.attachments;
-        if (isDefined(attachments)) {
+        /*if (isDefined(attachments)) {
             if (isDefined(attachments[0].payload) && isDefined(attachments[0].payload.coordinates)) {
                 if (isDefined(attachments[0].payload.coordinates.lat) && isDefined(attachments[0].payload.coordinates.long)) {
                     text = attachments[0].payload.coordinates.lat.concat(', ', attachments[0].payload.coordinates.long);
                 }
             }
-        }
+        }*/
         if (!isDefined(text)) {
-            text = event.message ? event.message.text : event.postback.payload;
+            console.log('Attachments only!');
         }
+
         // Handle a message from this sender
 
         if (!sessionIds.has(sender)) {
