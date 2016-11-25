@@ -394,10 +394,12 @@ function formatVenueData(raw) {
                 if (isDefined(venue.location.address) && isDefined(venue.location.city)) {
                     loc = venue.location.address.concat(' ', venue.location.city);
                     if (isDefined(venue.location.postalCode)) {
+                        console.log('made to postalcode');
                         loc.concat(' ', venue.location.postalCode);
                     }
                     if (isDefined(venue.location.country)) {
                         loc.concat(' ', venue.location.country);
+                        console.log('made to country');
                     }
                 }
                 if (!isDefined(loc) && isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
