@@ -143,12 +143,16 @@ function waitForLocation(attachments, callCount) { //wait for location
         if (isDefined(attachments.payload.coordinates.lat) && isDefined(attachments.payload.coordinates.long)) {
             loc = attachments.payload.coordinates.lat.toString().concat(', ', attachments.payload.coordinates.long.toString());
         } else {
-            setTimeOut(waitForLocation.bind(null, attachments, callCount + 1), 50);
+            setTimeout(function() {
+                waitForLocation(attachments, callcount + 1);
+            }, 100);
             return;
         }
     } catch (err) {
         console.log('Location error: ', err.message);
-        waitForLocation(attachments, callCount + 1);
+        setTimeout(function() {
+            waitForLocation(attachments, callcount + 1);
+        }, 100);
         return;
     }
     return loc;
