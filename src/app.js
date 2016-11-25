@@ -45,9 +45,11 @@ function processEvent(event) {
         
         var text = event.message ? event.message.text : event.postback.payload;
 
-        /*
         var attachments = event.message.attachments;
-        */
+        
+        if (isDefined(attachments)) {
+            console.log('Attachments defined!');
+        }
 
         // Handle a message from this sender
 
@@ -111,7 +113,7 @@ function processEvent(event) {
                                         textResponse(requestLocation, sender);              //ask for location if not provided
                                     }
                                 } else {
-                                    textResponse(requestLocation, sender);                  //-.-
+                                    textResponse(requestLocation, sender);
                                 }
                             });
                         }
@@ -310,7 +312,7 @@ app.post('/webhook/', (req, res) => {
                     messaging_events.forEach((event) => {
                         if (event.message && !event.message.is_echo ||
                             event.postback && event.postback.payload) {
-                            console.log('processing event');
+                            console.log('Processing event');
                             processEvent(event);
                         }
                     });
@@ -413,7 +415,6 @@ function formatVenueData(raw) {
                     j++;
                 }
             }
-            console.log(venue);
             venues.push(formatted);
         }
     }
