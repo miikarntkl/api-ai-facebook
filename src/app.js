@@ -350,7 +350,7 @@ function formatVenueData(raw) {
 
             //add venue name
             var formatted = {};
-            if (!isDefined(venue.name)) {
+            if (!isDefined(venue.name) || !isDefined(venue.id)) {
                 continue;
             }
             formatted.title = venue.name;
@@ -390,10 +390,19 @@ function formatVenueData(raw) {
             //add link to venue's location on google maps
             if (isDefined(venue.location)) {
                 var loc = null;
-                if (isDefined(venue.location.formattedAddress) && venue.location.formattedAddress.length > 1) {
-                    loc = venue.location.formattedAddress[0].concat(' ', venue.location.formattedAddress[1]);
+                console.log('FormattedAddress: ', isDefined(venue.location.formattedAddress));
+                console.log('FormattedLength: ', venue.location.formattedAddress.length.toString());
+                if (isDefined(venue.location.formattedAddress) && venue.location.formattedAddress.length > 0) {
+                    loc = "";
+                    for (let k = 1; k < venue.location.formattedAddress.length; k++) {
+                        loc = loc.concat(' ', venue.location.formattedAddress[k]);
+                    }
+                    loc.trim();
+                    if (loc.length < 1) {
+                        loc = null;
+                    }
                 }
-                if (isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
+                if (!isDefined(loc) && isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
                     let lat = venue.location.lat;
                     let long = venue.location.lng;
                     loc = lat.toString().concat(',', long.toString());
@@ -404,6 +413,7 @@ function formatVenueData(raw) {
                         title: 'Show On Map',
                     };
                     formatted.buttons[j].url = 'http://maps.google.com/?q='.concat(loc);
+                    j++;
                 }
                 console.log('Maps loc: ', loc);
             }
