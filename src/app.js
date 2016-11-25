@@ -136,7 +136,7 @@ function waitForLocation(attachments, callCount) { //wait for location
     if (callCount > 20) {
         return;
     }
-
+    console.log('CallCount: ', callCount);
     var loc = null;
 
     try {
