@@ -133,7 +133,7 @@ function processEvent(event) {
 }
 
 function waitForLocation(attachments, callCount) { //wait for location
-    if (callCount > 20) {
+    if (callCount > 100) {
         return;
     }
     console.log('CallCount: ', callCount);
