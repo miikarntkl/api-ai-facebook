@@ -151,7 +151,7 @@ function waitForLocation(attachments, callCount) { //wait for location
     } catch (err) {
         console.log('Location error: ', err.message);
         setTimeout(function() {
-            waitForLocation(attachments, callcount + 1);
+            waitForLocation(attachments, callCount + 1);
         }, 100);
         return;
     }
