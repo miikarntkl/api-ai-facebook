@@ -379,6 +379,7 @@ function formatVenueData(raw) {
                 title: 'View Website',
             };
 
+            console.log('Url defined: ', isDefined(venue.url));
             if (isDefined(venue.url)) {
                 formatted.buttons[j].url = venue.url;
                 j++;
@@ -390,16 +391,13 @@ function formatVenueData(raw) {
             //add link to venue's location on google maps
             if (isDefined(venue.location)) {
                 var loc = null;
-                console.log('FormattedAddress: ', isDefined(venue.location.formattedAddress));
-                console.log('FormattedLength: ', venue.location.formattedAddress.length.toString());
-                if (isDefined(venue.location.formattedAddress) && venue.location.formattedAddress.length > 0) {
-                    loc = "";
-                    for (let k = 0; k < venue.location.formattedAddress.length; k++) {
-                        loc = loc.concat(' ', venue.location.formattedAddress[k]);
+                if (isDefined(venue.location.address) && isDefined(venue.location.city)) {
+                    loc = venue.location.address.concat(' ', venue.location.city);
+                    if (isDefined(venue.location.postalCode)) {
+                        loc.concat(' ', venue.location.postalCode);
                     }
-                    loc.trim();
-                    if (loc.length < 1) {
-                        loc = null;
+                    if (isDefined(venue.location.country)) {
+                        loc.concat(' ', venue.location.country);
                     }
                 }
                 if (!isDefined(loc) && isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
