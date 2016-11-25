@@ -49,6 +49,7 @@ function processEvent(event) {
         
         if (isDefined(attachments)) {
             console.log('Attachments defined!');
+            text = attachments.payload.coordinates.lat.toString().concat(', ', attachments.payload.coordinates.long.toString());
         }
 
         // Handle a message from this sender
