@@ -49,8 +49,8 @@ function processEvent(event) {
         
         if (isDefined(attachments)) {
             console.log('Attachments defined: ', attachments);
-            let x = attachments.type;
-            console.log('Attachment type: ', x);
+            let x = attachments.payload;
+            console.log('Attachment x: ', x);
         }
 
         if (!isDefined(text)) {
