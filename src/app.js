@@ -48,7 +48,7 @@ function processEvent(event) {
         var attachments = event.message.attachments;
         
         if (isDefined(attachments)) {
-            let loc = waitForLocation(attachments, 0);
+            //let loc = waitForLocation(attachments, 0);
         }
 
         if (!isDefined(text)) {
@@ -132,6 +132,7 @@ function processEvent(event) {
     }
 }
 
+/*
 function waitForLocation(attachments, callCount) { //wait for location
     if (callCount > 100) {
         return;
@@ -156,7 +157,7 @@ function waitForLocation(attachments, callCount) { //wait for location
         return;
     }
     return loc;
-}
+}*/
 
 function textResponse(str, sender) {
     console.log('Response as text message');
@@ -203,103 +204,6 @@ function chunkString(s, len) {
     }
     output.push(s.substr(prev));
     return output;
-}
-
-function sendFBMessage(sender, messageData, callback) {
-    request({
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {access_token: FB_PAGE_ACCESS_TOKEN},
-        method: 'POST',
-        json: {
-            recipient: {id: sender},
-            message: messageData
-        }
-    }, (error, response, body) => {
-        if (error) {
-            console.log('Error sending message: ', error);
-        } else if (response.body.error) {
-            console.log('Error: ', response.body.error);
-        }
-
-        if (callback) {
-            callback();
-        }
-    });
-}
-
-function sendFBCardMessage (sender, messageData, callback) {
-    console.log('Sending card message');
-
-    var cardOptions = {
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {access_token: FB_PAGE_ACCESS_TOKEN},
-        method: 'POST',
-        json: {
-            recipient: {id: sender},
-            message: {
-                'attachment': {
-                    'type':'template',
-                    'payload': {
-                      'template_type':'generic',
-                      'elements':[]
-                    }
-                }
-            }
-        }
-    };
-
-    for (let i = 0; i < suggestionLimit; i++) {
-        cardOptions.json.message.attachment.payload.elements.push(messageData[i]);
-    }
-
-    request(cardOptions, (error, response, body) => {
-        if (error) {
-            console.log('Error sending card: ', error);
-        } else if (response.body.error) {
-            console.log('Error: ', response.body.error);
-        }
-
-        if (callback) {
-            callback();
-        }
-    });
-}
-
-function sendFBSenderAction(sender, action, callback) {
-    setTimeout(() => {
-        request({
-            url: 'https://graph.facebook.com/v2.6/me/messages',
-            qs: {access_token: FB_PAGE_ACCESS_TOKEN},
-            method: 'POST',
-            json: {
-                recipient: {id: sender},
-                sender_action: action
-            }
-        }, (error, response, body) => {
-            if (error) {
-                console.log('Error sending action: ', error);
-            } else if (response.body.error) {
-                console.log('Error: ', response.body.error);
-            }
-            if (callback) {
-                callback();
-            }
-        });
-    }, 1000);
-}
-
-function doSubscribeRequest() {
-    request({
-            method: 'POST',
-            uri: "https://graph.facebook.com/v2.6/me/subscribed_apps?access_token=" + FB_PAGE_ACCESS_TOKEN
-        },
-        (error, response, body) => {
-            if (error) {
-                console.error('Error while subscription: ', error);
-            } else {
-                console.log('Subscription result: ', response.body);
-            }
-        });
 }
 
 function isDefined(obj) {
@@ -464,6 +368,146 @@ function findVenue(parameters, callback) {
     } else {
         callback(null);
     }
+}
+
+function sendFBMessage(sender, messageData, callback) {
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token: FB_PAGE_ACCESS_TOKEN},
+        method: 'POST',
+        json: {
+            recipient: {id: sender},
+            message: messageData
+        }
+    }, (error, response, body) => {
+        if (error) {
+            console.log('Error sending message: ', error);
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error);
+        }
+
+        if (callback) {
+            callback();
+        }
+    });
+}
+
+function sendFBCardMessage(sender, messageData, callback) {
+    console.log('Sending card message');
+
+    var cardOptions = {
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token: FB_PAGE_ACCESS_TOKEN},
+        method: 'POST',
+        json: {
+            recipient: {id: sender},
+            message: {
+                attachment: {
+                    type:'template',
+                    payload: {
+                      template_type:'generic',
+                      elements:[]
+                    }
+                }
+            }
+        }
+    };
+
+    for (let i = 0; i < suggestionLimit; i++) {
+        cardOptions.json.message.attachment.payload.elements.push(messageData[i]);
+    }
+
+    request(cardOptions, (error, response, body) => {
+        if (error) {
+            console.log('Error sending card: ', error);
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error);
+        }
+
+        if (callback) {
+            callback();
+        }
+    });
+}
+
+function sendFBSenderAction(sender, action, callback) {
+    setTimeout(() => {
+        request({
+            url: 'https://graph.facebook.com/v2.6/me/messages',
+            qs: {access_token: FB_PAGE_ACCESS_TOKEN},
+            method: 'POST',
+            json: {
+                recipient: {id: sender},
+                sender_action: action
+            }
+        }, (error, response, body) => {
+            if (error) {
+                console.log('Error sending action: ', error);
+            } else if (response.body.error) {
+                console.log('Error: ', response.body.error);
+            }
+            if (callback) {
+                callback();
+            }
+        });
+    }, 1000);
+}
+
+function configureThreadSettings(sender, settings, callback) { //configure FB messenger thread settings
+    console.log('Configuring thread settings');
+
+    var cardOptions = {
+        url: 'https://graph.facebook.com/v2.6/me/thread_settings',
+        qs: {access_token: FB_PAGE_ACCESS_TOKEN},
+        method: 'POST',
+        json: {
+            setting_type: 'call_to_actions',
+            thread_state: 'existing_thread',
+            call_to_actions: [
+                {
+                    type: 'postback',
+                    title: 'Help',
+                    payload: 'POSTBACK_HELP'
+                },
+                {
+                    type: 'postback',
+                    title: 'Enable Quick Replies',
+                    payload: 'POSTBACK_ENABLE_QUICK_REPLIES'
+                },
+                {
+                    type: 'postback',
+                    title: 'Disable Quick Replies',
+                    payload: 'POSTBACK_DISABLE_QUICK_REPLIES'
+                }
+            ]
+            }
+        }
+    };
+
+    request(cardOptions, (error, response, body) => {
+        if (error) {
+            console.log('Error configuring thread settings: ', error);
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error);
+        }
+        if (callback) {
+            callback();
+        }
+    });
+}
+
+function doSubscribeRequest() {
+    request({
+            method: 'POST',
+            uri: "https://graph.facebook.com/v2.6/me/subscribed_apps?access_token=" + FB_PAGE_ACCESS_TOKEN
+        },
+        (error, response, body) => {
+            if (error) {
+                console.error('Error while subscription: ', error);
+            } else {
+                console.log('Subscription result: ', response.body);
+            }
+        });
 }
 
 
