@@ -29,7 +29,7 @@ const foursquareCategories = {
     topPicks: 'topPicks',
 };
 const defaultCategory = foursquareCategories.topPicks;
-var suggestionLimit = 3;
+var suggestionLimit = 5;
 var closestFirst = 0;
 
 const actionFindVenue = 'findVenue';
@@ -100,18 +100,18 @@ function processEvent(event) {
                     textResponse(responseText, sender);
                 } else if (isDefined(action) && isDefined(intentName)) {
 
-                    if (action === actionFindVenue && intentName == intentFindVenue) {
+                    if (action === actionFindVenue && intentName == intentFindVenue) {      //check for findvenue action and intent
                         if (isDefined(parameters)) {
-                            findVenue(parameters, (foursquareResponse) => {
+                            findVenue(parameters, (foursquareResponse) => {                 //find venues according to parameters
                                 if (isDefined(foursquareResponse)) {
-                                    let formatted = formatVenueData(foursquareResponse);
+                                    let formatted = formatVenueData(foursquareResponse);    //format response data for fb
                                     if (isDefined(formatted) && formatted.length > 0) {
-                                        sendFBCardMessage(sender, formatted);
+                                        sendFBCardMessage(sender, formatted);               //send data as fb cards
                                     } else {
-                                        textResponse(requestLocation, sender);
+                                        textResponse(requestLocation, sender);              //ask for location if not provided
                                     }
                                 } else {
-                                    textResponse(requestLocation, sender);
+                                    textResponse(requestLocation, sender);                  //-.-
                                 }
                             });
                         }
@@ -390,6 +390,9 @@ function formatVenueData(raw) {
             //add link to venue's location on google maps
             if (isDefined(venue.location)) {
                 var loc = null;
+                if (isDefined(venue.location.formattedAddress) && venue.location.formattedAddress.length > 1) {
+                    loc = venue.location.formattedAddress[0].concat(' ', venue.location.formattedAddress[1]);
+                }
                 if (isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
                     let lat = venue.location.lat;
                     let long = venue.location.lng;
@@ -402,6 +405,7 @@ function formatVenueData(raw) {
                     };
                     formatted.buttons[j].url = 'http://maps.google.com/?q='.concat(loc);
                 }
+                console.log('Maps loc: ', loc);
             }
 
             venues.push(formatted);
