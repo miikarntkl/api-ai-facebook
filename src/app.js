@@ -48,9 +48,7 @@ function processEvent(event) {
         var attachments = event.message.attachments;
         
         if (isDefined(attachments)) {
-            console.log('Attachments defined: ', attachments);
-            let x = attachments.payload;
-            console.log('Attachment x: ', x);
+            let loc = waitForLocation(attachments, 0);
         }
 
         if (!isDefined(text)) {
@@ -132,6 +130,27 @@ function processEvent(event) {
         apiaiRequest.on('error', (error) => console.error(error));
         apiaiRequest.end();
     }
+}
+
+function waitForLocation(attachments, callCount) { //wait for location
+    if (callCount > 20) {
+        return;
+    }
+
+    var loc = null;
+
+    try {
+        if (isDefined(attachments.payload.coordinates.lat) && isDefined(attachments.payload.coordinates.long)) {
+            loc = attachments.payload.coordinates.lat.toString().concat(', ', attachments.payload.coordinates.long.toString());
+        } else {
+            setTimeOut(waitForLocation.bind(null, attachments, callCount + 1), 50);
+            return;
+        }
+
+    } catch (err) {
+        console.log('Location error: ', err.message);
+    }
+    return loc;
 }
 
 function textResponse(str, sender) {
