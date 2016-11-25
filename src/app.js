@@ -394,7 +394,7 @@ function formatVenueData(raw) {
                 console.log('FormattedLength: ', venue.location.formattedAddress.length.toString());
                 if (isDefined(venue.location.formattedAddress) && venue.location.formattedAddress.length > 0) {
                     loc = "";
-                    for (let k = 1; k < venue.location.formattedAddress.length; k++) {
+                    for (let k = 0; k < venue.location.formattedAddress.length; k++) {
                         loc = loc.concat(' ', venue.location.formattedAddress[k]);
                     }
                     loc.trim();
