@@ -453,10 +453,10 @@ function sendFBSenderAction(sender, action, callback) {
     }, 1000);
 }
 
-function configureThreadSettings(sender, settings, callback) { //configure FB messenger thread settings
+function configureThreadSettings(settings, callback) { //configure FB messenger thread settings
     console.log('Configuring thread settings');
 
-    var cardOptions = {
+    var options = {
         url: 'https://graph.facebook.com/v2.6/me/thread_settings',
         qs: {access_token: FB_PAGE_ACCESS_TOKEN},
         method: 'POST',
@@ -480,11 +480,10 @@ function configureThreadSettings(sender, settings, callback) { //configure FB me
                     payload: 'POSTBACK_DISABLE_QUICK_REPLIES'
                 }
             ]
-            }
         }
     };
 
-    request(cardOptions, (error, response, body) => {
+    request(options, (error, response, body) => {
         if (error) {
             console.log('Error configuring thread settings: ', error);
         } else if (response.body.error) {
@@ -564,3 +563,4 @@ app.listen(REST_PORT, () => {
 });
 
 doSubscribeRequest();
+configureThreadSettings(null);
