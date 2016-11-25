@@ -46,11 +46,14 @@ function processEvent(event) {
         var text = event.message ? event.message.text : event.postback.payload;
 
         var attachments = event.message.attachments;
-        var x = attachments.payload.coordinates.lat;
+        //var x = attachments.payload.coordinates.lat;
         
         if (isDefined(attachments)) {
             console.log('Attachments defined!');
             //text = attachments.payload.coordinates.lat.toString().concat(', ', attachments.payload.coordinates.long.toString());
+        }
+        if (!isDefined(text)) {
+            return;
         }
 
         // Handle a message from this sender
