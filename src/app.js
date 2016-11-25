@@ -146,9 +146,10 @@ function waitForLocation(attachments, callCount) { //wait for location
             setTimeOut(waitForLocation.bind(null, attachments, callCount + 1), 50);
             return;
         }
-
     } catch (err) {
         console.log('Location error: ', err.message);
+        setTimeOut(waitForLocation.bind(null, attachments, callCount + 1), 50);
+        return;
     }
     return loc;
 }
