@@ -29,7 +29,7 @@ const foursquareCategories = {
     topPicks: 'topPicks',
 };
 const defaultCategory = foursquareCategories.topPicks;
-var suggestionLimit = 5;
+var suggestionLimit = 3;
 var closestFirst = 0;
 
 const actionFindVenue = 'findVenue';
@@ -379,7 +379,6 @@ function formatVenueData(raw) {
                 title: 'View Website',
             };
 
-            console.log('Url defined: ', isDefined(venue.url));
             if (isDefined(venue.url)) {
                 formatted.buttons[j].url = venue.url;
                 j++;
@@ -394,12 +393,10 @@ function formatVenueData(raw) {
                 if (isDefined(venue.location.address) && isDefined(venue.location.city)) {
                     loc = venue.location.address.concat(' ', venue.location.city);
                     if (isDefined(venue.location.postalCode)) {
-                        console.log('made to postalcode');
-                        loc.concat(' ', venue.location.postalCode);
+                        loc = loc.concat(' ', venue.location.postalCode);
                     }
                     if (isDefined(venue.location.country)) {
-                        loc.concat(' ', venue.location.country);
-                        console.log('made to country');
+                        loc = loc.concat(' ', venue.location.country);
                     }
                 }
                 if (!isDefined(loc) && isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
@@ -415,9 +412,8 @@ function formatVenueData(raw) {
                     formatted.buttons[j].url = 'http://maps.google.com/?q='.concat(loc);
                     j++;
                 }
-                console.log('Maps loc: ', loc);
             }
-
+            console.log(venue);
             venues.push(formatted);
         }
     }
