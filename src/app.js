@@ -68,7 +68,7 @@ function processEvent(event) {
         
         var text = event.message.text;
 
-        if (!isDefined(text) && isDefined(event.message.attachments)) { // see if location was sent
+        if (!isDefined(text) && isDefined(event.message.attachments[0])) { // see if location was sent
             try {
                 var lat = event.message.attachments[0].payload.coordinates.lat;
                 var long = event.message.attachments[0].payload.coordinates.long;
