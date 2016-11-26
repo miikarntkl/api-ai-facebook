@@ -70,10 +70,10 @@ function processEvent(event) {
 
         if (!isDefined(text)) {
             console.log('Text not defined');
-            var x = event.message.attachments.payload;
+            var x = event.message.attachments;
             try {
-                var y = x.coordinates;
-                var lat = y.lat;
+                var y = x.url;
+                console.log('url: ', y);
             } catch (e) {
                 console.log('Location error: ', e.message);
             }
@@ -137,7 +137,7 @@ function processEvent(event) {
                                 if (isDefined(foursquareResponse)) {
                                     let formatted = formatVenueData(foursquareResponse);    //format response data for fb
                                     if (isDefined(formatted) && formatted.length > 0) {
-                                        sendFBCardMessage(sender, formatted);               //send data as fb cards
+                                        sendFBGenericMessage(sender, formatted);               //send data as fb cards
                                     } else {
                                         requestLocation(sender);              //ask for location if not provided
                                     }
@@ -229,7 +229,7 @@ function sendFBMessage(sender, messageData, callback) {
     });
 }
 
-function sendFBCardMessage(sender, messageData, callback) {
+function sendFBGenericMessage(sender, messageData, callback) {
     console.log('Sending card message');
 
     var cardOptions = {
