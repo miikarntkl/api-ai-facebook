@@ -69,7 +69,8 @@ function processEvent(event) {
         var text = event.message.text;
 
         if (!isDefined(text)) {
-            waitForLocation(event.message.attachments, 0);
+            console.log('x: ', JSON.stringify(event.message.attachments));
+            return;
         }
 
         // Handle a message from this sender
@@ -149,26 +150,6 @@ function processEvent(event) {
     else if (event.postback && event.postback.payload) {
         executePostback(sender, event.postback.payload);
     }
-}
-
-function waitForLocation(attachments, callCount) {
-    try {
-        var url = attachments.url;
-        console.log('url: ', url);
-        if (!isDefined(url)) {
-            setTimeout(function() {
-                waitForLocation(attachments, callCount + 1);
-            }, 100);
-        } else {
-            return url;
-        }
-    } catch (e) {
-        console.log('CallCount: ', callCount);
-        setTimeout(function() {
-            waitForLocation(attachments, callCount + 1);
-        }, 100);
-    }
-    return null;
 }
 
 function textResponse(str, sender) {
