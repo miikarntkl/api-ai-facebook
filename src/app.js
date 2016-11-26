@@ -46,6 +46,7 @@ const venueCategories = {
         payload: 'PAYLOAD_TOPPICKS'
     }
 };
+
 const defaultCategory = venueCategories.topPicks.name;
 var suggestionLimit = 3;
 var closestFirst = 0;
