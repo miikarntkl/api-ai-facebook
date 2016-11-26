@@ -179,19 +179,6 @@ function chunkString(s, len) {
     return output;
 }
 
-function isDefined(obj) {
-    if (typeof obj == 'undefined') {
-        return false;
-    }
-
-    if (!obj) {
-        return false;
-    }
-
-    return obj != null;
-}
-
-
 function sendFBMessage(sender, messageData, callback) {
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -330,6 +317,77 @@ function doSubscribeRequest() {
             }
         });
 }
+
+function isDefined(obj) {
+    if (typeof obj == 'undefined') {
+        return false;
+    }
+
+    if (!obj) {
+        return false;
+    }
+
+    return obj != null;
+}
+
+const app = express();
+
+app.use(bodyParser.text({type: 'application/json'}));
+
+app.get('/webhook/', (req, res) => {
+    if (req.query['hub.verify_token'] == FB_VERIFY_TOKEN) {
+        res.send(req.query['hub.challenge']);
+
+        setTimeout(() => {
+            doSubscribeRequest();
+        }, 3000);
+    } else {
+        res.send('Error, wrong validation token');
+    }
+});
+
+app.post('/webhook/', (req, res) => {
+    try {
+        var data = JSONbig.parse(req.body);
+
+        if (data.entry) {
+            let entries = data.entry;
+            entries.forEach((entry) => {
+                let messaging_events = entry.messaging;
+                if (messaging_events) {
+                    messaging_events.forEach((event) => {
+                        if (event.message && !event.message.is_echo ||
+                            event.postback && event.postback.payload) {
+                            console.log('Processing event');
+                            processEvent(event);
+                        }
+                    });
+                }
+            });
+        }
+
+        return res.status(200).json({
+            status: "ok"
+        });
+    } catch (err) {
+        return res.status(400).json({
+            status: "error",
+            error: err
+        });
+    }
+
+});
+
+app.listen(REST_PORT, () => {
+    console.log('Rest service ready on port ' + REST_PORT);
+});
+
+function main() {
+    doSubscribeRequest();
+    //configureThreadSettings(null);
+}
+
+main();
 
 function formatVenueData(raw) {
     if (!isDefined(raw.response.groups)) {
@@ -481,63 +539,4 @@ function findVenue(parameters, callback) {
     } else {
         callback(null);
     }
-}
-
-const app = express();
-
-app.use(bodyParser.text({type: 'application/json'}));
-
-app.get('/webhook/', (req, res) => {
-    if (req.query['hub.verify_token'] == FB_VERIFY_TOKEN) {
-        res.send(req.query['hub.challenge']);
-
-        setTimeout(() => {
-            doSubscribeRequest();
-        }, 3000);
-    } else {
-        res.send('Error, wrong validation token');
-    }
-});
-
-app.post('/webhook/', (req, res) => {
-    try {
-        var data = JSONbig.parse(req.body);
-
-        if (data.entry) {
-            let entries = data.entry;
-            entries.forEach((entry) => {
-                let messaging_events = entry.messaging;
-                if (messaging_events) {
-                    messaging_events.forEach((event) => {
-                        if (event.message && !event.message.is_echo ||
-                            event.postback && event.postback.payload) {
-                            console.log('Processing event');
-                            processEvent(event);
-                        }
-                    });
-                }
-            });
-        }
-
-        return res.status(200).json({
-            status: "ok"
-        });
-    } catch (err) {
-        return res.status(400).json({
-            status: "error",
-            error: err
-        });
-    }
-
-});
-
-app.listen(REST_PORT, () => {
-    console.log('Rest service ready on port ' + REST_PORT);
-});
-
-main();
-
-function main() {
-    doSubscribeRequest();
-    configureThreadSettings(null);
 }
