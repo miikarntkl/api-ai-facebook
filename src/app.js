@@ -73,6 +73,7 @@ function processEvent(event) {
         if (!isDefined(text)) {
             console.log('Text not defined');
             var x = event.message.attachments.payload;
+            console.log('x: ', x);
             return;
         }
 
