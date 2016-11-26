@@ -256,6 +256,48 @@ function sendFBSenderAction(sender, action, callback) {
     }, 1000);
 }
 
+function configureThreadSettings(settings, callback) {  //configure FB messenger thread settings
+    console.log('Configuring thread settings');         // e.g. for adding persistent menu
+
+    var options = {
+        url: 'https://graph.facebook.com/v2.6/me/thread_settings',
+        qs: {access_token: FB_PAGE_ACCESS_TOKEN},
+        method: 'POST',
+        json: {
+            setting_type: 'call_to_actions',
+            thread_state: 'existing_thread',
+            call_to_actions: [
+                {
+                    type: 'postback',
+                    title: 'Help',
+                    payload: 'POSTBACK_HELP'
+                },
+                {
+                    type: 'postback',
+                    title: 'Enable Quick Replies',
+                    payload: 'POSTBACK_ENABLE_QUICK_REPLIES'
+                },
+                {
+                    type: 'postback',
+                    title: 'Disable Quick Replies',
+                    payload: 'POSTBACK_DISABLE_QUICK_REPLIES'
+                }
+            ]
+        }
+    };
+
+    request(options, (error, response, body) => {
+        if (error) {
+            console.log('Error configuring thread settings: ', error);
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error);
+        }
+        if (callback) {
+            callback();
+        }
+    });
+}
+
 function doSubscribeRequest() {
     request({
             method: 'POST',
