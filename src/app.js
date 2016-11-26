@@ -69,9 +69,10 @@ function processEvent(event) {
         var text = event.message.text;
 
         if (!isDefined(text)) {
-            console.log('x: ', JSON.stringify(event.message.attachments));
+            console.log('a: ', JSON.stringify(event.message.attachments));
             try {
                 var x = event.message.attachments[0];
+                console.log('a: ', JSON.stringify(x));
                 var y = x.url;
                 console.log('url: ', url);
             } catch(e) {
