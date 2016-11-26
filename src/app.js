@@ -70,6 +70,13 @@ function processEvent(event) {
 
         if (!isDefined(text)) {
             console.log('x: ', JSON.stringify(event.message.attachments));
+            try {
+                var x = event.message.attachments[0];
+                var y = x.url;
+                console.log('url: ', url);
+            } catch(e) {
+                console.log('e: ', e.message);
+            }
             return;
         }
 
