@@ -68,19 +68,19 @@ function processEvent(event) {
         
         var text = event.message.text;
 
-        if (!isDefined(text)) {
-            console.log('a: ', JSON.stringify(event.message.attachments));
+        if (!isDefined(text) && isDefined(event.message.attachments)) { // see if location was sent
             try {
-                var x = event.message.attachments[0];
-                console.log('a: ', JSON.stringify(x));
-                var y = x.payload.coordinates;
-                console.log('url: ', y);
-                var lat = y.lat;
-                var long = y.long;
-                console.log('ll: ', lat.toString().concat(', ', long.toString()));
+                var lat = event.message.attachments[0].payload.coordinates.lat;
+                var long = event.message.attachments[0].payload.coordinates.long;
+                text = lat.toString().concat(', ', long.toString());
             } catch(e) {
-                console.log('e: ', e.message);
+                console.log('Error with location extraction: ', e.message);
             }
+            return;
+        }
+
+        if (!isDefined(text)) {
+            console.log('Error: message text undefined');
             return;
         }
 
