@@ -69,16 +69,7 @@ function processEvent(event) {
         var text = event.message.text;
 
         if (!isDefined(text)) {
-            console.log('Text not defined');
-            var x = event.message.attachments;
-            try {
-                var y = x.url;
-                console.log('url: ', y);
-            } catch (e) {
-                console.log('Location error: ', e.message);
-            }
-            console.log('x: ', x);
-            return;
+            waitForLocation(event.message.attachments, 0);
         }
 
         // Handle a message from this sender
@@ -158,6 +149,27 @@ function processEvent(event) {
     else if (event.postback && event.postback.payload) {
         executePostback(sender, event.postback.payload);
     }
+}
+
+function waitForLocation(attachments, callCount) {
+    try {
+        var url = attachments.url;
+        console.log('url: ', url);
+        if (!isDefined(url)) {
+            setTimeout(function() {
+                waitForLocation(attachments, callCount + 1);
+            }, 100);
+        } else {
+            return url;
+        }
+    } catch (e) {
+        console.log('CallCount: ', callCount);
+        setTimeout(function() {
+            waitForLocation(attachments, callCount + 1);
+        }, 100);
+    }
+    console.log('x: ', x);
+    return null;
 }
 
 function textResponse(str, sender) {
@@ -556,11 +568,6 @@ function formatGETOptions(parameters) {
         options.qs.ll = lat.toString().concat(', ', long.toString());
     } else {
         return null;
-    }
-
-    if (isDefined(loc)) {
-        let message = 'Showing '.concat(venueType, ' in ', loc);
-        textResponse()
     }
 
     return options;
