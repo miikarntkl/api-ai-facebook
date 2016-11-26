@@ -73,8 +73,11 @@ function processEvent(event) {
             try {
                 var x = event.message.attachments[0];
                 console.log('a: ', JSON.stringify(x));
-                var y = x.url;
+                var y = x.payload.coordinates;
                 console.log('url: ', y);
+                var lat = y.lat;
+                var long = y.long;
+                console.log('ll: ', lat.toString().concat(', ', long.toString()));
             } catch(e) {
                 console.log('e: ', e.message);
             }
