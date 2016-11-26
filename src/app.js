@@ -607,10 +607,10 @@ app.post('/webhook/', (req, res) => {
             status: "ok"
         });
     } catch (err) {
+        console.log('Webhook error: ', err.message);
         return res.status(400).json({
             status: "error",
             error: err
-            console.log('Webhook error: ', err.message);
         });
     }
 
