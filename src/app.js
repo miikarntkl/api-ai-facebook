@@ -37,13 +37,19 @@ const intentFindVenue = 'FindVenue';
 
 const requestLocation = 'Please specify a valid location.';
 
+const quickReplies = {
+    help: 'POSTBACK_HELP',
+    enable_quick_replies: 'POSTBACK_ENABLE_QUICK_REPLIES',
+    disable_quick_replies: 'POSTBACK_DISABLE_QUICK_REPLIES',
+};
+
 function processEvent(event) {
 
     var sender = event.sender.id.toString();
 
-    if ((event.message && event.message.text) || (event.message && event.message.attachments) || (event.postback && event.postback.payload)) {
+    if ((event.message && event.message.text) || (event.message && event.message.attachments)) {
         
-        var text = event.message ? event.message.text : event.postback.payload;
+        var text = event.message.text;
 
         if (!isDefined(text)) {
             console.log('Text not defined');
@@ -123,6 +129,9 @@ function processEvent(event) {
 
         apiaiRequest.on('error', (error) => console.error(error));
         apiaiRequest.end();
+    }
+    else if (event.postback && event.postback.payload) {
+        executePostback(event.postback.payload);
     }
 }
 
@@ -254,6 +263,22 @@ function sendFBSenderAction(sender, action, callback) {
             }
         });
     }, 1000);
+}
+
+function executePostback(postback) {
+    switch (postback) {
+        case quickReplies.help:
+            console.log('Help');
+            break;
+        case quickReplies.enable_quick_replies:
+            console.log('Enable quick replies');
+            break;
+        case quickReplies.disable_quick_replies:
+            console.log('Disable quick replies');
+            break;
+        default:
+            console.log('No relevant postback found!');
+    }
 }
 
 function configureThreadSettings(settings, callback) {  //configure FB messenger thread settings
