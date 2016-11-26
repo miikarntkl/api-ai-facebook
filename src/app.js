@@ -48,7 +48,7 @@ const venueCategories = {
 };
 
 const defaultCategory = venueCategories.topPicks.name;
-var suggestionLimit = 3;
+var suggestionLimit = 5;
 var closestFirst = 0;
 
 const actionFindVenue = 'findVenue';
@@ -72,6 +72,7 @@ function processEvent(event) {
 
         if (!isDefined(text)) {
             console.log('Text not defined');
+            var x = event.message.attachments.payload;
             return;
         }
 
@@ -609,6 +610,7 @@ app.post('/webhook/', (req, res) => {
         return res.status(400).json({
             status: "error",
             error: err
+            console.log('Webhook error: ', err.message);
         });
     }
 
