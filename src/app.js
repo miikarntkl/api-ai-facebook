@@ -76,7 +76,6 @@ function processEvent(event) {
             } catch(e) {
                 console.log('Error with location extraction: ', e.message);
             }
-            return;
         }
 
         if (!isDefined(text)) {
