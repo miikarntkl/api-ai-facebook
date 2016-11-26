@@ -71,9 +71,9 @@ function processEvent(event) {
         if (!isDefined(text)) {
             console.log('Text not defined');
             var x = event.message.attachments.payload;
-            try{
+            try {
                 var y = x.coordinates;
-                var 
+                var lat = y.lat;
             } catch (e) {
                 console.log('Location error: ', e.message);
             }
