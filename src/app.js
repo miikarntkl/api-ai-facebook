@@ -168,7 +168,6 @@ function waitForLocation(attachments, callCount) {
             waitForLocation(attachments, callCount + 1);
         }, 100);
     }
-    console.log('x: ', x);
     return null;
 }
 
