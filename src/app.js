@@ -54,8 +54,6 @@ var closestFirst = 0;
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
 
-const requestLocation = 'Please give me a location.';
-
 const persistentMenu = {
     help: 'PAYLOAD_HELP',
     enable_quick_replies: 'PAYLOAD_ENABLE_QUICK_REPLIES',
@@ -73,6 +71,12 @@ function processEvent(event) {
         if (!isDefined(text)) {
             console.log('Text not defined');
             var x = event.message.attachments.payload;
+            try{
+                var y = x.coordinates;
+                var 
+            } catch (e) {
+                console.log('Location error: ', e.message);
+            }
             console.log('x: ', x);
             return;
         }
@@ -135,10 +139,10 @@ function processEvent(event) {
                                     if (isDefined(formatted) && formatted.length > 0) {
                                         sendFBCardMessage(sender, formatted);               //send data as fb cards
                                     } else {
-                                        textResponse(requestLocation, sender);              //ask for location if not provided
+                                        requestLocation(sender);              //ask for location if not provided
                                     }
                                 } else {
-                                    textResponse(requestLocation, sender);
+                                    requestLocation(sender);
                                 }
                             });
                         }
@@ -286,7 +290,7 @@ function sendFBSenderAction(sender, action, callback) {
     }, 1000);
 }
 
-function enableQuickReplies(sender) { //enables guided UI with quick replies
+function requestCategory(sender) { //enables guided UI with quick replies
     var message = {
         text: 'Please choose a category:',
         quick_replies: [
@@ -325,6 +329,18 @@ function enableQuickReplies(sender) { //enables guided UI with quick replies
     sendFBMessage(sender, message);
 }
 
+function requestLocation(sender) {
+    var message = {
+        text: 'Please give me a location:',
+        quick_replies: [
+            {
+                content_type: 'location',
+            }
+        ]
+    };
+    sendFBMessage(sender, message);
+}
+
 function executePostback(sender, postback) {
     switch (postback) {
         case persistentMenu.help:
@@ -332,7 +348,7 @@ function executePostback(sender, postback) {
             break;
         case persistentMenu.enable_quick_replies:
             console.log('Enable quick replies');
-            enableQuickReplies(sender);
+            requestCategory(sender);
             break;
         case persistentMenu.disable_quick_replies:
             console.log('Disable quick replies');
