@@ -60,6 +60,8 @@ const persistentMenu = {
     disable_quick_replies: 'PAYLOAD_DISABLE_QUICK_REPLIES',
 };
 
+var chosenCategory = {};
+
 function processEvent(event) {
 
     var sender = event.sender.id.toString();
@@ -519,9 +521,10 @@ function formatGETOptions(parameters) {
         venueType = parameters.venueType;
     }
 
-    console.log('Address: ', isDefined(parameters.location));
-    console.log('Coordinates: ', isDefined(parameters.coordinates));
-    console.log('Venue: ', isDefined(parameters.venueType));
+    console.log(JSON.stringify(parameters));
+    //console.log('Address: ', isDefined(parameters.location));
+    //console.log('Coordinates: ', isDefined(parameters.coordinates));
+    //console.log('Venue: ', isDefined(parameters.venueType));
 
     var options = {
         method: 'GET',
