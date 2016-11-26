@@ -54,7 +54,7 @@ var closestFirst = 0;
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
 
-const requestLocation = 'Please specify a valid location.';
+const requestLocation = 'Please give me a location.';
 
 const persistentMenu = {
     help: 'PAYLOAD_HELP',
@@ -291,12 +291,32 @@ function enableQuickReplies(sender) { //enables guided UI with quick replies
             {
                 content_type: 'text',
                 title: 'Food',
-                payload: 'PAYLOAD_FOOD',
+                payload: venueCategories.food.payload,
+            },
+            {
+                content_type: 'text',
+                title: 'Drinks',
+                payload: venueCategories.drinks.payload,
             },
             {
                 content_type: 'text',
                 title: 'Coffee',
-                payload: 'PAYLOAD_COFFEE',
+                payload: venueCategories.coffee.payload,
+            },
+            {
+                content_type: 'text',
+                title: 'Shops',
+                payload: venueCategories.shops.payload,
+            },
+            {
+                content_type: 'text',
+                title: 'Arts',
+                payload: venueCategories.arts.payload,
+            },
+            {
+                content_type: 'text',
+                title: 'Top Picks',
+                payload: venueCategories.topPicks.payload,
             },
         ]
     };
@@ -502,7 +522,7 @@ function formatGETOptions(parameters) {
     console.log('VenueType: ', venueType);
     console.log('Venue: ', options.qs.section);
 
-
+    var loc = null;
     if (isDefined(parameters.location)) {
         console.log('Location defined');
         if (isDefined(parameters.location.location)) { //location as address
@@ -518,6 +538,11 @@ function formatGETOptions(parameters) {
         options.qs.ll = lat.toString().concat(', ', long.toString());
     } else {
         return null;
+    }
+
+    if (isDefined(loc)) {
+        let message = 'Showing '.concat(venueType, ' in ', loc);
+        textResponse()
     }
 
     return options;
