@@ -100,7 +100,6 @@ function processEvent(event) {
                 } else if (isDefined(responseText)) {
                     textResponse(responseText, sender);
                 } else if (isDefined(action) && isDefined(intentName)) {
-
                     if (action === actionFindVenue && intentName == intentFindVenue) {      //check for findvenue action and intent
                         if (isDefined(parameters)) {
                             findVenue(parameters, (foursquareResponse) => {                 //find venues according to parameters
@@ -206,11 +205,11 @@ function sendFBCardMessage (sender, messageData, callback) {
         json: {
             recipient: {id: sender},
             message: {
-                'attachment': {
-                    'type':'template',
-                    'payload': {
-                      'template_type':'generic',
-                      'elements':[]
+                attachment: {
+                    type:'template',
+                    payload: {
+                      template_type:'generic',
+                      elements: []
                     }
                 }
             }
