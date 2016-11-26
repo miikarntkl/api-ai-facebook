@@ -20,15 +20,33 @@ const apiAiService = apiai(APIAI_ACCESS_TOKEN, {language: APIAI_LANG, requestSou
 const sessionIds = new Map();
 
 const foursquareVersion = '20160108';
-const foursquareCategories = {
-    food: 'food',
-    drinks: 'drinks',
-    coffee: 'coffee',
-    shops: 'shops',
-    arts: 'arts',
-    topPicks: 'topPicks',
+const venueCategories = {
+    food: {
+        name: 'food',
+        payload: 'PAYLOAD_FOOD'
+    },
+    drinks: {
+        name: 'drinks',
+        payload: 'PAYLOAD_DRINKS'
+    },
+    coffee: {
+        name: 'coffee',
+        payload: 'PAYLOAD_COFFEE'
+    },
+    shops: {
+        name: 'shops',
+        payload: 'PAYLOAD_SHOPS'
+    },
+    arts: {
+        name: 'arts',
+        payload: 'PAYLOAD_ARTS'
+    },
+    topPicks: {
+        name: 'topPicks',
+        payload: 'PAYLOAD_TOPPICKS'
+    }
 };
-const defaultCategory = foursquareCategories.topPicks;
+const defaultCategory = venueCategories.topPicks.name;
 var suggestionLimit = 3;
 var closestFirst = 0;
 
@@ -37,10 +55,10 @@ const intentFindVenue = 'FindVenue';
 
 const requestLocation = 'Please specify a valid location.';
 
-const quickReplies = {
-    help: 'POSTBACK_HELP',
-    enable_quick_replies: 'POSTBACK_ENABLE_QUICK_REPLIES',
-    disable_quick_replies: 'POSTBACK_DISABLE_QUICK_REPLIES',
+const persistentMenu = {
+    help: 'PAYLOAD_HELP',
+    enable_quick_replies: 'PAYLOAD_ENABLE_QUICK_REPLIES',
+    disable_quick_replies: 'PAYLOAD_DISABLE_QUICK_REPLIES',
 };
 
 function processEvent(event) {
@@ -131,7 +149,7 @@ function processEvent(event) {
         apiaiRequest.end();
     }
     else if (event.postback && event.postback.payload) {
-        executePostback(event.postback.payload);
+        executePostback(sender, event.postback.payload);
     }
 }
 
@@ -204,7 +222,7 @@ function sendFBMessage(sender, messageData, callback) {
     });
 }
 
-function sendFBCardMessage (sender, messageData, callback) {
+function sendFBCardMessage(sender, messageData, callback) {
     console.log('Sending card message');
 
     var cardOptions = {
@@ -265,15 +283,35 @@ function sendFBSenderAction(sender, action, callback) {
     }, 1000);
 }
 
-function executePostback(postback) {
+function enableQuickReplies(sender) { //enables guided UI with quick replies
+    var message = {
+        text: 'Please choose a category:',
+        quick_replies: [
+            {
+                content_type: 'text',
+                title: 'Food',
+                payload: 'PAYLOAD_FOOD',
+            },
+            {
+                content_type: 'text',
+                title: 'Coffee',
+                payload: 'PAYLOAD_COFFEE',
+            },
+        ]
+    };
+    sendFBMessage(sender, message);
+}
+
+function executePostback(sender, postback) {
     switch (postback) {
-        case quickReplies.help:
+        case persistentMenu.help:
             console.log('Help');
             break;
-        case quickReplies.enable_quick_replies:
+        case persistentMenu.enable_quick_replies:
             console.log('Enable quick replies');
+            enableQuickReplies(sender);
             break;
-        case quickReplies.disable_quick_replies:
+        case persistentMenu.disable_quick_replies:
             console.log('Disable quick replies');
             break;
         default:
@@ -282,7 +320,7 @@ function executePostback(postback) {
 }
 
 function configureThreadSettings(settings, callback) {  //configure FB messenger thread settings
-    console.log('Configuring thread settings');         // e.g. for adding persistent menu
+    console.log('Configuring thread settings');         //for now only for adding persistent menu
 
     var options = {
         url: 'https://graph.facebook.com/v2.6/me/thread_settings',
@@ -295,17 +333,17 @@ function configureThreadSettings(settings, callback) {  //configure FB messenger
                 {
                     type: 'postback',
                     title: 'Help',
-                    payload: 'POSTBACK_HELP'
+                    payload: 'PAYLOAD_HELP'
                 },
                 {
                     type: 'postback',
                     title: 'Enable Quick Replies',
-                    payload: 'POSTBACK_ENABLE_QUICK_REPLIES'
+                    payload: 'PAYLOAD_ENABLE_QUICK_REPLIES'
                 },
                 {
                     type: 'postback',
                     title: 'Disable Quick Replies',
-                    payload: 'POSTBACK_DISABLE_QUICK_REPLIES'
+                    payload: 'PAYLOAD_DISABLE_QUICK_REPLIES'
                 }
             ]
         }
@@ -555,3 +593,4 @@ app.listen(REST_PORT, () => {
 });
 
 doSubscribeRequest();
+configureThreadSettings(null);
