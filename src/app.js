@@ -74,7 +74,7 @@ function processEvent(event) {
                 var x = event.message.attachments[0];
                 console.log('a: ', JSON.stringify(x));
                 var y = x.url;
-                console.log('url: ', url);
+                console.log('url: ', y);
             } catch(e) {
                 console.log('e: ', e.message);
             }
