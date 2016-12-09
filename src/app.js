@@ -385,14 +385,14 @@ function executeButtonAction(sender, postback) {
 function helpMessage(sender) {
     var messageData;
     if (!quickRepliesOn) {
-        messageData = 'I can search for multiple types of venues in any location.\n'+
+        messageData = 'I can search for multiple types of venues in any location.\n\n'+
                        'To give me a location, type the name of the location or share your location via Messenger.'+
-                       'If you submit only a location, I will give the top spots of any category in that area.\n'+
-                       'To select a type of venue you want, enter the name of the preferred venue type. \n'+
+                       'If you submit only a location, I will give the top spots of any category in that area.\n\n'+
+                       'To select a type of venue you want, enter the name of the preferred venue type. \n\n'+
                        'Supported venue types are: food, coffee, drinks, shops, arts and top picks.';
     }
     else {
-        messageData = 'Not implemented';
+        messageData = 'To get started type \'start\', or something else along those lines';
     }
     console.log('Sender: ', sender);
     console.log('Message: ', messageData);
