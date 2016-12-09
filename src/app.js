@@ -386,7 +386,7 @@ function helpMessage(sender) {
     var messageData;
     if (!quickRepliesOn) {
         messageData = 'I\'m VenueBot. I can search for venues by their category or location.\n\n'+
-                      'To search by location, type the name of the location or share your location via Facebook Messenger.\n'+
+                      'To search by location, type the name of the location or share your location via Facebook Messenger.\n\n'+
                       'If you submit only a location, I will give you the top spots of any category in that area.\n\n'+
                       'To limit the search results by venue category, enter the name of the category.\n\n'+
                       'Supported venue categories are: food, coffee, drinks, shops, arts and top picks.';
