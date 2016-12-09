@@ -409,7 +409,7 @@ function helpMessage(sender) {
             ]
         }];
     }
-    if (isDefined(helpMessage) {
+    if (isDefined(helpMessage)) {
         sendFBGenericMessage(sender, helpMessage);
     }
 }
