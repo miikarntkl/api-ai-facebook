@@ -503,6 +503,7 @@ function formatVenueData(raw) {
 }
 
 function formatGETOptions(sender, parameters) {
+    console.log(userSearchParameters);
 
     var venueType = defaultCategory;
 
