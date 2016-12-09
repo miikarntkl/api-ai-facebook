@@ -49,7 +49,7 @@ const venueCategories = {
 const helpOptions = {
     quick_replies: 'PAYLOAD_HELP_QUICKREPLIES',
     venues: 'PAYLOAD_HELP_VENUES',
-}
+};
 
 const defaultCategory = venueCategories.topPicks.name;
 var suggestionLimit = 5;
@@ -371,17 +371,19 @@ function executeButtonAction(sender, postback) {
             break;
         case helpOptions.quick_replies:
             quickReplyHelp(sender);
-            console.log('Quick Reply Help')
+            console.log('Quick Reply Help');
+            break;
         case helpOptions.venues:
             venueHelp(sender);
             console.log('Venue Help');
+            break;
         default:
             console.log('No relevant postback found!');
     }
 }
 
 function helpMessage(sender) {
-    let helpMessage = {
+    let helpMessage = [{
         title: 'What would you like me to help you with?',
         buttons: [
             {
@@ -395,13 +397,13 @@ function helpMessage(sender) {
                 payload: 'PAYLOAD_HELP_QUICKREPLIES'
             }
         ]
-    }
+    }];
     sendFBGenericMessage(sender, helpMessage);
 }
 
 function venueHelp(sender) {
     if (quickRepliesOn) {
-        let helpMessage = {
+        let helpMessage = [{
             title: 'I can search venues of multiple type and in any location. \
                     To give me a location, type the name of the location or share your location via Messenger. \
                     To select a type of venue you want, enter the name of the preferred venue type. \
@@ -418,11 +420,11 @@ function venueHelp(sender) {
                     payload: 'NONE'
                 }
             ]
-        }
+        }];
         sendFBGenericMessage(sender, helpMessage);
     }
     else {
-        let helpMessage = {
+        let helpMessage = [{
             title: 'To have me search for venues you like',
             buttons: [
                 {
@@ -436,16 +438,14 @@ function venueHelp(sender) {
                     payload: 'NONE'
                 }
             ]
-        }
+        }];
         sendFBGenericMessage(sender, helpMessage);
     }
 }
 
 function quickReplyHelp(sender) {
-    let helpMessage = {
-        title: 'To enable a button-based interface, click on the menu-icon on the leftside of the input box.',
-    }
-    sendFBGenericMessage(sender, helpMessage);
+    let helpMessage = 'To enable a button-based interface, click on the menu-icon on the leftside of the input box.';
+    sendFBMessage(sender, helpMessage);
 }
 
 function configureThreadSettings(settings, callback) {  //configure FB messenger thread settings
