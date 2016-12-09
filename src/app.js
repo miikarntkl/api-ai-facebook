@@ -383,22 +383,20 @@ function executeButtonAction(sender, postback) {
 }
 
 function helpMessage(sender) {
-    var messageData = [];
+    var messageData;
     if (!quickRepliesOn) {
-        let tmp = 'I can search for multiple types of venues in any location.';
-        textResponse(sender, tmp);
-        tmp = 'To give me a location, type the name of the location or share your location via Messenger.\
-        If you submit only a location, I will give the top spots of any category in that area.';
-        textResponse(sender, tmp);
-        tmp = 'To select a type of venue you want, enter the name of the preferred venue type.';
-        textResponse(sender, tmp);
-        tmp = 'Supported venue types are food, coffee, drinks, shops, arts and top picks.';
-        textResponse(sender, tmp);
+        messageData = 'I can search for multiple types of venues in any location.\n'+
+                       'To give me a location, type the name of the location or share your location via Messenger.'+
+                       'If you submit only a location, I will give the top spots of any category in that area.\n'+
+                       'To select a type of venue you want, enter the name of the preferred venue type. \n'+
+                       'Supported venue types are: food, coffee, drinks, shops, arts and top picks.';
     }
     else {
-        let str5 = 'To get started, type start or something else along those lines.';
-        textResponse(sender, str5);
+        messageData = 'Not implemented';
     }
+    console.log('Sender: ', sender);
+    console.log('Message: ', messageData);
+    textResponse(sender, messageData);
 }
 
 function configureThreadSettings(settings, callback) {  //configure FB messenger thread settings
