@@ -394,7 +394,7 @@ function helpMessage(sender) {
         helpMessage = 'Not implemented';
     }
     console.log('Message: ', helpMessage);
-    sendFBMessage(sender, helpMessage);
+    textResponse(sender, helpMessage);
 }
 
 function configureThreadSettings(settings, callback) {  //configure FB messenger thread settings
