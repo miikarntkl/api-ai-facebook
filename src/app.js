@@ -50,6 +50,7 @@ const venueCategories = {
 const defaultCategory = venueCategories.topPicks.name;
 var suggestionLimit = 5;
 var closestFirst = 0;
+var searchParameters = {};
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -137,18 +138,7 @@ function processEvent(event) {
                 } else if (isDefined(action) && isDefined(intentName)) {
                     if (action === actionFindVenue && intentName == intentFindVenue) {      //check for findvenue action and intent
                         if (isDefined(parameters)) {
-                            findVenue(parameters, (foursquareResponse) => {                 //find venues according to parameters
-                                if (isDefined(foursquareResponse)) {
-                                    let formatted = formatVenueData(foursquareResponse);    //format response data for fb
-                                    if (isDefined(formatted) && formatted.length > 0) {
-                                        sendFBGenericMessage(sender, formatted);               //send data as fb cards
-                                    } else {
-                                        requestLocation(sender);              //ask for location if not provided
-                                    }
-                                } else {
-                                    requestLocation(sender);
-                                }
-                            });
+
                         }
                     }
                 }
@@ -226,7 +216,6 @@ function sendFBMessage(sender, messageData, callback) {
         } else if (response.body.error) {
             console.log('Error: ', response.body.error);
         }
-
         if (callback) {
             callback();
         }
@@ -334,8 +323,11 @@ function requestCategory(sender) { //enables guided UI with quick replies
 }
 
 function requestLocation(sender) {
+    if (isDefined(sender.id)) {
+        searchParameters.(sender.id) = 
+    }
     var message = {
-        text: 'Please give me a location:',
+        text: 'Share or type a location:',
         quick_replies: [
             {
                 content_type: 'location',
@@ -522,9 +514,6 @@ function formatGETOptions(parameters) {
     }
 
     console.log(JSON.stringify(parameters));
-    //console.log('Address: ', isDefined(parameters.location));
-    //console.log('Coordinates: ', isDefined(parameters.coordinates));
-    //console.log('Venue: ', isDefined(parameters.venueType));
 
     var options = {
         method: 'GET',
@@ -566,8 +555,24 @@ function formatGETOptions(parameters) {
     return options;
 }
 
-function findVenue(parameters, callback) {
+function findVenue(sender, parameters) {
 
+    getVenues(parameters, (foursquareResponse) => {                 //find venues according to parameters
+        if (isDefined(foursquareResponse)) {
+            let formatted = formatVenueData(foursquareResponse);    //format response data for fb
+            if (isDefined(formatted) && formatted.length > 0) {
+                sendFBGenericMessage(sender, formatted);               //send data as fb cards
+            } else {
+                requestLocation(sender);              //ask for location if not provided
+            }
+        } else {
+            requestLocation(sender);
+        }
+    });
+}
+
+function getVenues(parameters, callback) {
+    
     var options = formatGETOptions(parameters);
 
     if (isDefined(options)) {
@@ -603,7 +608,6 @@ app.get('/webhook/', (req, res) => {
 app.post('/webhook/', (req, res) => {
     try {
         var data = JSONbig.parse(req.body);
-
         if (data.entry) {
             let entries = data.entry;
             entries.forEach((entry) => {
@@ -619,7 +623,6 @@ app.post('/webhook/', (req, res) => {
                 }
             });
         }
-
         return res.status(200).json({
             status: "ok"
         });
@@ -630,7 +633,6 @@ app.post('/webhook/', (req, res) => {
             error: err
         });
     }
-
 });
 
 app.listen(REST_PORT, () => {
