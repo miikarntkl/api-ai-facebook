@@ -138,7 +138,7 @@ function processEvent(event) {
                 } else if (isDefined(action) && isDefined(intentName)) {
                     if (action === actionFindVenue && intentName == intentFindVenue) {      //check for findvenue action and intent
                         if (isDefined(parameters)) {
-
+                            findVenue(sender, parameters);
                         }
                     }
                 }
