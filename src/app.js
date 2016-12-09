@@ -385,17 +385,19 @@ function executeButtonAction(sender, postback) {
 function helpMessage(sender) {
     var messageData = [];
     if (!quickRepliesOn) {
-        messageData = [ 'I can search for multiple types of venues in any location.',
-                        'To give me a location, type the name of the location or share your location via Messenger.\
-                         If you submit only a location, I will give the top spots of any category in that area.',
-                        'To select a type of venue you want, enter the name of the preferred venue type.',
-                        'Supported venue types are: food, coffee, drinks, shops, arts and top picks.' ];
+        let tmp = 'I can search for multiple types of venues in any location.';
+        textResponse(sender, tmp);
+        tmp = 'To give me a location, type the name of the location or share your location via Messenger.\
+        If you submit only a location, I will give the top spots of any category in that area.';
+        textResponse(sender, tmp);
+        tmp = 'To select a type of venue you want, enter the name of the preferred venue type.';
+        textResponse(sender, tmp);
+        tmp = 'Supported venue types are food, coffee, drinks, shops, arts and top picks.';
+        textResponse(sender, tmp);
     }
     else {
-        messageData = ['Not implemented'];
-    }
-    for (let i = 0; i < messageData.length; i++) {
-        textResponse(sender, messageData[i]);
+        let str5 = 'To get started, type start or something else along those lines.';
+        textResponse(sender, str5);
     }
 }
 
