@@ -50,7 +50,7 @@ const venueCategories = {
 const defaultCategory = venueCategories.topPicks.name;
 var suggestionLimit = 5;
 var closestFirst = 0;
-var searchParameters = {};
+var userSearchParameters = {};
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -502,12 +502,15 @@ function formatVenueData(raw) {
     return venues;
 }
 
-function formatGETOptions(parameters) {
+function formatGETOptions(sender, parameters) {
 
     var venueType = defaultCategory;
 
     if (isDefined(parameters.venueType)) {
         venueType = parameters.venueType;
+    }
+    if (userSearchParameters.hasOwnProperty(sender)) {
+        console.log('Same sender: ', sender);
     }
 
     console.log(JSON.stringify(parameters));
@@ -553,30 +556,29 @@ function formatGETOptions(parameters) {
 }
 
 function findVenue(sender, parameters) {
-
-    getVenues(parameters, (foursquareResponse) => {                 //find venues according to parameters
+    getVenues(sender, parameters, (foursquareResponse) => {                 //find venues according to parameters
         if (isDefined(foursquareResponse) && isDefined(foursquareResponse.response)) {
             let formatted = formatVenueData(foursquareResponse);    //format response data for fb
             if (isDefined(formatted) && formatted.length > 0) {
                 sendFBGenericMessage(sender, formatted);               //send data as fb cards
             } else {
-                searchParameters.sender = foursquareResponse;
+                userSearchParameters.sender = foursquareResponse;
                 requestLocation(sender);              //ask for location if not provided
                 console.log('ID: ', sender);
-                console.log('TYPE: ', searchParameters.sender);
+                console.log('TYPE: ', userSearchParameters.sender);
             }
         } else {
-                searchParameters.sender = foursquareResponse;
+                userSearchParameters.sender = foursquareResponse;
                 requestLocation(sender);
                 console.log('ID: ', sender);
-                console.log('TYPE: ', searchParameters.sender);
+                console.log('TYPE: ', userSearchParameters.sender);
         }
     });
 }
 
-function getVenues(parameters, callback) {
+function getVenues(sender, parameters, callback) {
 
-    var options = formatGETOptions(parameters);
+    var options = formatGETOptions(sender, parameters);
 
     if (isDefined(options)) {
         request(options, (error, res, body) => {  
