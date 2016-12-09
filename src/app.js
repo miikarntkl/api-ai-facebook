@@ -512,9 +512,10 @@ function formatGETOptions(sender, parameters) {
     }
     if (userSearchParameters.hasOwnProperty(sender)) {
         console.log('Same sender: ', sender);
+        if (isDefined(userSearchParameters[sender])) {
+            console.log('Sender venue type: ', userSearchParameters[sender]);
+        }
     }
-
-    console.log(JSON.stringify(parameters));
 
     var options = {
         method: 'GET',
