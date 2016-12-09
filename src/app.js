@@ -386,17 +386,17 @@ function helpMessage(sender) {
     var messageData;
     if (!quickRepliesOn) {
         messageData = 'I can search for multiple types of venues in any location.\n\n'+
-                       'To give me a location, type the name of the location or share your location via Messenger.'+
-                       'If you submit only a location, I will give the top spots of any category in that area.\n\n'+
-                       'To select a type of venue you want, enter the name of the preferred venue type. \n\n'+
+                      'To give me a location, type the name of the location or share your location via Messenger.'+
+                      'If you submit only a location, I will give the top spots of any category in that area.\n\n';
+        textResponse(sender, messageData);
+        messageData = 'To select a type of venue you want, enter the name of the preferred venue type. \n\n'+
                        'Supported venue types are: food, coffee, drinks, shops, arts and top picks.';
+        textResponse(sender, messageData);
     }
     else {
         messageData = 'To get started type \'start\', or something else along those lines';
+        textResponse(sender, messageData);
     }
-    console.log('Sender: ', sender);
-    console.log('Message: ', messageData);
-    textResponse(sender, messageData);
 }
 
 function configureThreadSettings(settings, callback) {  //configure FB messenger thread settings
