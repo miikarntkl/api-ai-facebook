@@ -54,6 +54,8 @@ var userSearchParameters = {};
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
+const actionHelp = 'help';
+const intentHelp = 'Help';
 
 const persistentMenu = {
     help: 'PAYLOAD_HELP',
@@ -97,7 +99,8 @@ function processEvent(event) {
         let apiaiRequest = apiAiService.textRequest(text,
             {
                 sessionId: sessionIds.get(sender)
-            });
+            }
+        );
 
         apiaiRequest.on('response', (response) => {
             if (isDefined(response.result)) {
@@ -136,10 +139,13 @@ function processEvent(event) {
                 } else if (isDefined(responseText)) {
                     textResponse(responseText, sender);
                 } else if (isDefined(action) && isDefined(intentName)) {
-                    if (action === actionFindVenue && intentName == intentFindVenue) {      //check for findvenue action and intent
+                    if (action === actionFindVenue && intentName == intentFindVenue) {  //check for findvenue request
                         if (isDefined(parameters)) {
                             findVenue(sender, parameters);
                         }
+                    }
+                    else if (action === actionHelp && intentName = intentHelp) {        //check for help request
+                        genericHelp();
                     }
                 }
 
@@ -290,35 +296,35 @@ function sendFBSenderAction(sender, action, callback) {
 
 function requestCategory(sender) { //enables guided UI with quick replies
     var message = {
-        title: 'Choose a venue category:',
-        buttons: [
+        text: 'Choose a venue category:',
+        quick_replies: [
             {
-                type: 'postback',
+                content_type: 'text',
                 title: 'Food',
                 payload: venueCategories.food.payload,
             },
             {
-                type: 'postback',
+                content_type: 'text',
                 title: 'Drinks',
                 payload: venueCategories.drinks.payload,
             },
             {
-                type: 'postback',
+                content_type: 'text',
                 title: 'Coffee',
                 payload: venueCategories.coffee.payload,
             },
             {
-                type: 'postback',
+                content_type: 'text',
                 title: 'Shops',
                 payload: venueCategories.shops.payload,
             },
             {
-                type: 'postback',
+                content_type: 'text',
                 title: 'Arts',
                 payload: venueCategories.arts.payload,
             },
             {
-                type: 'postback',
+                content_type: 'text',
                 title: 'Top Picks',
                 payload: venueCategories.topPicks.payload,
             },
@@ -342,7 +348,7 @@ function requestLocation(sender) {
 function executePostback(sender, postback) {
     switch (postback) {
         case persistentMenu.help:
-            console.log('Help');
+            genericHelp();
             break;
         case persistentMenu.enable_quick_replies:
             console.log('Enable quick replies');
@@ -353,6 +359,24 @@ function executePostback(sender, postback) {
             break;
         default:
             console.log('No relevant postback found!');
+    }
+}
+
+function genericHelp() {
+    let helpMessage = {
+        title: 'What would you like me to help you with?',
+        buttons: [
+            {
+                type: 'postback',
+                title: 'Finding Venues',
+                payload: 'HELP_VENUES_PAYLOAD'
+            },
+            {
+                type: 'postback',
+                title: 'Finding Venues',
+                payload: 'HELP_VENUES_PAYLOAD'
+            }
+        ]
     }
 }
 
