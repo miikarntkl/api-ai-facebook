@@ -385,18 +385,16 @@ function executeButtonAction(sender, postback) {
 function helpMessage(sender) {
     var messageData;
     if (!quickRepliesOn) {
-        messageData = 'I can search for multiple types of venues in any location.\n\n'+
-                      'To give me a location, type the name of the location or share your location via Messenger.'+
-                      'If you submit only a location, I will give the top spots of any category in that area.\n\n';
-        textResponse(sender, messageData);
-        messageData = 'To select a type of venue you want, enter the name of the preferred venue type. \n\n'+
-                       'Supported venue types are: food, coffee, drinks, shops, arts and top picks.';
-        textResponse(sender, messageData);
+        messageData = 'I\'m VenueBot. I can search for venues by their category or location.\n\n'+
+                      'To search by location, type the name of the location or share your location via Facebook Messenger.\n'+
+                      'If you submit only a location, I will give you the top spots of any category in that area.\n\n'+
+                      'To limit the search results by venue category, enter the name of the category.\n\n'+
+                      'Supported venue categories are: food, coffee, drinks, shops, arts and top picks.';
     }
     else {
         messageData = 'To get started type \'start\', or something else along those lines';
-        textResponse(sender, messageData);
     }
+    textResponse(sender, messageData);
 }
 
 function configureThreadSettings(settings, callback) {  //configure FB messenger thread settings
