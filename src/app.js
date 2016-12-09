@@ -323,9 +323,6 @@ function requestCategory(sender) { //enables guided UI with quick replies
 }
 
 function requestLocation(sender) {
-    if (isDefined(sender.id)) {
-        searchParameters.(sender.id) = 
-    }
     var message = {
         text: 'Share or type a location:',
         quick_replies: [
@@ -572,7 +569,7 @@ function findVenue(sender, parameters) {
 }
 
 function getVenues(parameters, callback) {
-    
+
     var options = formatGETOptions(parameters);
 
     if (isDefined(options)) {
