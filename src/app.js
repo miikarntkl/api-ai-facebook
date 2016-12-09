@@ -247,6 +247,11 @@ function sendFBGenericMessage(sender, messageData, callback) {
         cardOptions.json.message.attachment.payload.elements.push(messageData[i]);
     }
 
+    if (userSearchParameters.hasOwnProperty(sender)) {
+        delete userSearchParameters[sender];
+        console.log('Deleted: ', userSearchParameters);
+    }
+
     request(cardOptions, (error, response, body) => {
         if (error) {
             console.log('Error sending card: ', error);
@@ -513,7 +518,7 @@ function formatGETOptions(sender, parameters) {
     if (userSearchParameters.hasOwnProperty(sender)) {
         console.log('Same sender: ', sender);
         if (isDefined(userSearchParameters[sender])) {
-            console.log('Sender venue type: ', userSearchParameters[sender]);
+            venueType = userSearchParameters[sender];
         }
     }
 
