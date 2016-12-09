@@ -560,19 +560,16 @@ function findVenue(sender, parameters) {
             if (isDefined(formatted) && formatted.length > 0) {
                 sendFBGenericMessage(sender, formatted);               //send data as fb cards
             } else {
-                let id = sender.id;
-                searchParameters.id = foursquareResponse;
+                searchParameters.sender = foursquareResponse;
                 requestLocation(sender);              //ask for location if not provided
-                console.log('ID: ', id);
-                console.log('TYPE: ', searchParameters.id);
+                console.log('ID: ', sender);
+                console.log('TYPE: ', searchParameters.sender);
             }
         } else {
-            let id = sender.id;
-            searchParameters.id = foursquareResponse;
-            requestLocation(sender);
-            console.log('Sender: ', sender);
-            console.log('ID: ', id);
-            console.log('TYPE: ', searchParameters.id);
+                searchParameters.sender = foursquareResponse;
+                requestLocation(sender);
+                console.log('ID: ', sender);
+                console.log('TYPE: ', searchParameters.sender);
         }
     });
 }
