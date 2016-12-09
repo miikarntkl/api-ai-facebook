@@ -383,48 +383,17 @@ function executeButtonAction(sender, postback) {
 }
 
 function helpMessage(sender) {
-    let helpMessage = [{
-        title: 'What would you like me to help you with?',
-        buttons: [
-            {
-                type: 'postback',
-                title: 'Finding Venues',
-                payload: 'PAYLOAD_HELP_VENUES'
-            },
-            {
-                type: 'postback',
-                title: 'Changing to button-based User Interface',
-                payload: 'PAYLOAD_HELP_QUICKREPLIES'
-            }
-        ]
-    }];
-    sendFBGenericMessage(sender, helpMessage);
-}
-
-function venueHelp(sender) {
+    var helpMessage;
     if (quickRepliesOn) {
-        let helpMessage = [{
-            title: 'I can search venues of multiple type and in any location. \
+        helpMessage = [{
+            title: 'I can search venues of multiple types and in any location. \
                     To give me a location, type the name of the location or share your location via Messenger. \
                     To select a type of venue you want, enter the name of the preferred venue type. \
                     Supported venue types are: food, coffee, drinks, shops, arts and top picks. \ ',
-            buttons: [
-                {
-                    type: 'postback',
-                    title: 'A location',
-                    payload: 'NONE'
-                },
-                {
-                    type: 'postback',
-                    title: 'A venue type',
-                    payload: 'NONE'
-                }
-            ]
         }];
-        sendFBGenericMessage(sender, helpMessage);
     }
     else {
-        let helpMessage = [{
+        helpMessage = [{
             title: 'To have me search for venues you like',
             buttons: [
                 {
@@ -439,13 +408,10 @@ function venueHelp(sender) {
                 }
             ]
         }];
+    }
+    if (isDefined(helpMessage) {
         sendFBGenericMessage(sender, helpMessage);
     }
-}
-
-function quickReplyHelp(sender) {
-    let helpMessage = 'To enable a button-based interface, click on the menu-icon on the leftside of the input box.';
-    sendFBMessage(sender, helpMessage);
 }
 
 function configureThreadSettings(settings, callback) {  //configure FB messenger thread settings
