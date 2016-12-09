@@ -61,6 +61,8 @@ const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
 const actionHelp = 'help';
 const intentHelp = 'Help';
+const actionStartOver = 'startOver';
+const intentStartOver = 'StartOver';
 
 const persistentMenu = {
     help: 'PAYLOAD_HELP',
@@ -149,9 +151,11 @@ function processEvent(event) {
                             findVenue(sender, parameters);
                         }
                     }
-
                     else if (action === actionHelp && intentName === intentHelp) {        //check for help request
                         helpMessage(sender);
+                    }
+                    else if (quickRepliesOn && action === actionStartOver && intentName === intentStartOver) {
+                        requestCategory(sender);
                     }
                 }
 
@@ -278,6 +282,11 @@ function sendFBGenericMessage(sender, messageData, callback) {
             callback();
         }
     });
+
+    //if quick replies enabled, display start over quick reply
+    if (quickRepliesOn) {
+        requestStartOver(sender);
+    }
 }
 
 function sendFBSenderAction(sender, action, callback) {
@@ -301,6 +310,20 @@ function sendFBSenderAction(sender, action, callback) {
             }
         });
     }, 1000);
+}
+
+function requestStartOver(sender) {
+    var message = {
+        text: 'Want to go again?',
+        quick_replies: [
+            {
+                content_type: 'text',
+                title: 'Start Over',
+                payload: 'PAYLOAD_START_OVER',
+            },
+        ]
+    };
+    sendFBMessage(sender, message);
 }
 
 function requestCategory(sender) { //enables guided UI with quick replies
@@ -389,10 +412,10 @@ function helpMessage(sender) {
                       'To search by location, type the name of the location or share your location via Facebook Messenger.\n\n'+
                       'If you submit only a location, I will give you the top spots of any category in that area.\n\n'+
                       'To limit the search results by venue category, enter the name of the category.\n\n'+
-                      'Supported venue categories are: food, coffee, drinks, shops, arts and top picks.';
+                      'Supported venue categories are:\nfood, coffee, drinks, shops, arts and top picks.';
     }
     else {
-        messageData = 'To get started type \'start\', or something else along those lines';
+        messageData = 'To get started, type \'start\' or something else along those lines.';
     }
     textResponse(sender, messageData);
 }
