@@ -383,7 +383,7 @@ function executeButtonAction(sender, postback) {
 }
 
 function helpMessage(sender) {
-    var messageData[];
+    var messageData = [];
     if (!quickRepliesOn) {
         messageData = [ 'I can search for multiple types of venues in any location.',
                         'To give me a location, type the name of the location or share your location via Messenger.\
