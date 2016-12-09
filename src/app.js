@@ -290,35 +290,35 @@ function sendFBSenderAction(sender, action, callback) {
 
 function requestCategory(sender) { //enables guided UI with quick replies
     var message = {
-        text: 'Choose a category:',
-        quick_replies: [
+        title: 'Choose a venue category:',
+        buttons: [
             {
-                content_type: 'text',
+                type: 'postback',
                 title: 'Food',
                 payload: venueCategories.food.payload,
             },
             {
-                content_type: 'text',
+                type: 'postback',
                 title: 'Drinks',
                 payload: venueCategories.drinks.payload,
             },
             {
-                content_type: 'text',
+                type: 'postback',
                 title: 'Coffee',
                 payload: venueCategories.coffee.payload,
             },
             {
-                content_type: 'text',
+                type: 'postback',
                 title: 'Shops',
                 payload: venueCategories.shops.payload,
             },
             {
-                content_type: 'text',
+                type: 'postback',
                 title: 'Arts',
                 payload: venueCategories.arts.payload,
             },
             {
-                content_type: 'text',
+                type: 'postback',
                 title: 'Top Picks',
                 payload: venueCategories.topPicks.payload,
             },
