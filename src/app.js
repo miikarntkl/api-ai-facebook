@@ -395,7 +395,7 @@ function helpMessage(sender) {
         messageData = ['Not implemented'];
     }
     for (let i = 0; i < messageData.length; i++) {
-        textResponse(sender, messageData);
+        textResponse(sender, messageData[i]);
     }
 }
 
