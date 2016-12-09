@@ -393,9 +393,8 @@ function helpMessage(sender) {
     else {
         helpMessage = 'Not implemented';
     }
-    if (isDefined(helpMessage)) {
-        sendFBMessage(sender, helpMessage);
-    }
+    cnsole.log('Message: ', helpMessage);
+    sendFBMessage(sender, helpMessage);
 }
 
 function configureThreadSettings(settings, callback) {  //configure FB messenger thread settings
