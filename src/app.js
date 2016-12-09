@@ -393,7 +393,7 @@ function helpMessage(sender) {
     else {
         helpMessage = 'Not implemented';
     }
-    cnsole.log('Message: ', helpMessage);
+    console.log('Message: ', helpMessage);
     sendFBMessage(sender, helpMessage);
 }
 
