@@ -563,13 +563,13 @@ function findVenue(sender, parameters) {
             if (isDefined(formatted) && formatted.length > 0) {
                 sendFBGenericMessage(sender, formatted);               //send data as fb cards
             } else {
-                userSearchParameters.sender = foursquareResponse;
+                userSearchParameters[sender] = foursquareResponse;
                 requestLocation(sender);              //ask for location if not provided
                 console.log('ID: ', sender);
                 console.log('TYPE: ', userSearchParameters.sender);
             }
         } else {
-                userSearchParameters.sender = foursquareResponse;
+                userSearchParameters[sender] = foursquareResponse;
                 requestLocation(sender);
                 console.log('ID: ', sender);
                 console.log('TYPE: ', userSearchParameters.sender);
