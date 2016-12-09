@@ -144,7 +144,8 @@ function processEvent(event) {
                             findVenue(sender, parameters);
                         }
                     }
-                    else if (action === actionHelp && intentName = intentHelp) {        //check for help request
+
+                    else if (action === actionHelp && intentName === intentHelp) {        //check for help request
                         genericHelp();
                     }
                 }
