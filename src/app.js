@@ -386,7 +386,8 @@ function helpMessage(sender) {
     var helpMessage;
     if (quickRepliesOn) {
         helpMessage = [{
-            title: 'I can search venues of multiple types and in any location. \
+            title: 'Finding venues',
+            subtitle: 'I can search venues of multiple types and in any location. \
                     To give me a location, type the name of the location or share your location via Messenger. \
                     To select a type of venue you want, enter the name of the preferred venue type. \
                     Supported venue types are: food, coffee, drinks, shops, arts and top picks. \ ',
