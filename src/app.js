@@ -570,6 +570,7 @@ function findVenue(sender, parameters) {
             let id = sender.id;
             searchParameters.id = foursquareResponse;
             requestLocation(sender);
+            console.log('Sender: ', sender);
             console.log('ID: ', id);
             console.log('TYPE: ', searchParameters.id);
         }
