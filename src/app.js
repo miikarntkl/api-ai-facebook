@@ -285,7 +285,7 @@ function sendFBSenderAction(sender, action, callback) {
 
 function requestCategory(sender) { //enables guided UI with quick replies
     var message = {
-        text: 'Please choose a category:',
+        text: 'Choose a category:',
         quick_replies: [
             {
                 content_type: 'text',
@@ -555,15 +555,23 @@ function formatGETOptions(parameters) {
 function findVenue(sender, parameters) {
 
     getVenues(parameters, (foursquareResponse) => {                 //find venues according to parameters
-        if (isDefined(foursquareResponse)) {
+        if (isDefined(foursquareResponse) && isDefined(foursquareResponse.response)) {
             let formatted = formatVenueData(foursquareResponse);    //format response data for fb
             if (isDefined(formatted) && formatted.length > 0) {
                 sendFBGenericMessage(sender, formatted);               //send data as fb cards
             } else {
+                let id = sender.id;
+                searchParameters.id = foursquareResponse;
                 requestLocation(sender);              //ask for location if not provided
+                console.log('ID: ', id);
+                console.log('TYPE: ', searchParameters.id);
             }
         } else {
+            let id = sender.id;
+            searchParameters.id = foursquareResponse;
             requestLocation(sender);
+            console.log('ID: ', id);
+            console.log('TYPE: ', searchParameters.id);
         }
     });
 }
@@ -581,7 +589,7 @@ function getVenues(parameters, callback) {
             }
         });
     } else {
-        callback(null);
+        callback(parameters.venueType);
     }
 }
 
