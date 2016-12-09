@@ -358,7 +358,7 @@ function executeButtonAction(sender, postback) {
     switch (postback) {
         case persistentMenu.help:
             console.log('Help requested');
-            helpMessage();
+            helpMessage(sender);
             break;
         case persistentMenu.enable_quick_replies:
             console.log('Enable quick replies');
@@ -380,7 +380,7 @@ function executeButtonAction(sender, postback) {
     }
 }
 
-function helpMessage() {
+function helpMessage(sender) {
     let helpMessage = {
         title: 'What would you like me to help you with?',
         buttons: [
@@ -399,7 +399,7 @@ function helpMessage() {
     sendFBGenericMessage(sender, helpMessage);
 }
 
-function venueHelp() {
+function venueHelp(sender) {
     if (quickRepliesOn) {
         let helpMessage = {
             title: 'I can search venues of multiple type and in any location. \
@@ -441,7 +441,7 @@ function venueHelp() {
     }
 }
 
-function quickReplyHelp() {
+function quickReplyHelp(sender) {
     let helpMessage = {
         title: 'To enable a button-based interface, click on the menu-icon on the leftside of the input box.',
     }
