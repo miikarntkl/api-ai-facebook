@@ -385,33 +385,16 @@ function executeButtonAction(sender, postback) {
 function helpMessage(sender) {
     var helpMessage;
     if (quickRepliesOn) {
-        helpMessage = [{
-            title: 'Finding venues',
-            subtitle: 'I can search venues of multiple types and in any location. \
-                    To give me a location, type the name of the location or share your location via Messenger. \
-                    To select a type of venue you want, enter the name of the preferred venue type. \
-                    Supported venue types are: food, coffee, drinks, shops, arts and top picks. \ ',
-        }];
+        helpMessage = 'I can search venues of multiple types and in any location. \
+                       To give me a location, type the name of the location or share your location via Messenger. \
+                       To select a type of venue you want, enter the name of the preferred venue type. \
+                       Supported venue types are: food, coffee, drinks, shops, arts and top picks. \ '
     }
     else {
-        helpMessage = [{
-            title: 'To have me search for venues you like',
-            buttons: [
-                {
-                    type: 'postback',
-                    title: 'Finding Venues',
-                    payload: 'NONE'
-                },
-                {
-                    type: 'postback',
-                    title: 'Changing to button-based User Interface',
-                    payload: 'NONE'
-                }
-            ]
-        }];
+        helpMessage = 'Not implemented \ '
     }
     if (isDefined(helpMessage)) {
-        sendFBGenericMessage(sender, helpMessage);
+        sendFBMessage(sender, helpMessage);
     }
 }
 
