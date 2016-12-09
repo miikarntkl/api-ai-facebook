@@ -282,11 +282,6 @@ function sendFBGenericMessage(sender, messageData, callback) {
             callback();
         }
     });
-
-    //if quick replies enabled, display start over quick reply
-    if (quickRepliesOn) {
-        requestStartOver(sender);
-    }
 }
 
 function sendFBSenderAction(sender, action, callback) {
@@ -631,7 +626,15 @@ function findVenue(sender, parameters) {
         if (isDefined(foursquareResponse) && isDefined(foursquareResponse.response)) {
             let formatted = formatVenueData(foursquareResponse);    //format response data for fb
             if (isDefined(formatted) && formatted.length > 0) {
-                sendFBGenericMessage(sender, formatted);               //send data as fb cards
+
+
+                sendFBGenericMessage(sender, formatted, () => {
+                    console.log('Hey bitches I\'m done');
+
+                    if (quickRepliesOn) {
+                        requestStartOver(sender);
+                    }
+                });               //send data as fb cards
             } else {
                 userSearchParameters[sender] = foursquareResponse;
                 requestLocation(sender);              //ask for location if not provided
