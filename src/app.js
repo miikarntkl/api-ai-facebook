@@ -46,11 +46,16 @@ const venueCategories = {
         payload: 'PAYLOAD_TOPPICKS'
     }
 };
+const helpOptions = {
+    quick_replies: 'PAYLOAD_HELP_QUICKREPLIES',
+    venues: 'PAYLOAD_HELP_VENUES',
+}
 
 const defaultCategory = venueCategories.topPicks.name;
 var suggestionLimit = 5;
 var closestFirst = 0;
 var userSearchParameters = {};
+var quickRepliesOn = false;
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -146,7 +151,7 @@ function processEvent(event) {
                     }
 
                     else if (action === actionHelp && intentName === intentHelp) {        //check for help request
-                        genericHelp();
+                        helpMessage(sender);
                     }
                 }
 
@@ -157,7 +162,7 @@ function processEvent(event) {
         apiaiRequest.end();
     }
     else if (event.postback && event.postback.payload) {
-        executePostback(sender, event.postback.payload);
+        executeButtonAction(sender, event.postback.payload);
     }
 }
 
@@ -231,7 +236,10 @@ function sendFBMessage(sender, messageData, callback) {
 
 function sendFBGenericMessage(sender, messageData, callback) {
     console.log('Sending card message');
-
+    if (!isDefined(messageData)) {
+        console.log('GenericMessage content undefined');
+        return;
+    }
     var cardOptions = {
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: FB_PAGE_ACCESS_TOKEN},
@@ -250,7 +258,7 @@ function sendFBGenericMessage(sender, messageData, callback) {
         }
     };
 
-    for (let i = 0; i < suggestionLimit; i++) {
+    for (let i = 0; i < messageData.length; i++) {
         cardOptions.json.message.attachment.payload.elements.push(messageData[i]);
     }
 
@@ -346,39 +354,98 @@ function requestLocation(sender) {
     sendFBMessage(sender, message);
 }
 
-function executePostback(sender, postback) {
+function executeButtonAction(sender, postback) {
     switch (postback) {
         case persistentMenu.help:
-            genericHelp();
+            console.log('Help requested');
+            helpMessage();
             break;
         case persistentMenu.enable_quick_replies:
             console.log('Enable quick replies');
             requestCategory(sender);
+            quickRepliesOn = true;
             break;
         case persistentMenu.disable_quick_replies:
             console.log('Disable quick replies');
+            quickRepliesOn = false;
             break;
+        case helpOptions.quick_replies:
+            quickReplyHelp(sender);
+            console.log('Quick Reply Help')
+        case helpOptions.venues:
+            venueHelp(sender);
+            console.log('Venue Help');
         default:
             console.log('No relevant postback found!');
     }
 }
 
-function genericHelp() {
+function helpMessage() {
     let helpMessage = {
         title: 'What would you like me to help you with?',
         buttons: [
             {
                 type: 'postback',
                 title: 'Finding Venues',
-                payload: 'HELP_VENUES_PAYLOAD'
+                payload: 'PAYLOAD_HELP_VENUES'
             },
             {
                 type: 'postback',
-                title: 'Finding Venues',
-                payload: 'HELP_VENUES_PAYLOAD'
+                title: 'Changing to button-based User Interface',
+                payload: 'PAYLOAD_HELP_QUICKREPLIES'
             }
         ]
     }
+    sendFBGenericMessage(sender, helpMessage);
+}
+
+function venueHelp() {
+    if (quickRepliesOn) {
+        let helpMessage = {
+            title: 'I can search venues of multiple type and in any location. \
+                    To give me a location, type the name of the location or share your location via Messenger. \
+                    To select a type of venue you want, enter the name of the preferred venue type. \
+                    Supported venue types are: food, coffee, drinks, shops, arts and top picks. \ ',
+            buttons: [
+                {
+                    type: 'postback',
+                    title: 'A location',
+                    payload: 'NONE'
+                },
+                {
+                    type: 'postback',
+                    title: 'A venue type',
+                    payload: 'NONE'
+                }
+            ]
+        }
+        sendFBGenericMessage(sender, helpMessage);
+    }
+    else {
+        let helpMessage = {
+            title: 'To have me search for venues you like',
+            buttons: [
+                {
+                    type: 'postback',
+                    title: 'Finding Venues',
+                    payload: 'NONE'
+                },
+                {
+                    type: 'postback',
+                    title: 'Changing to button-based User Interface',
+                    payload: 'NONE'
+                }
+            ]
+        }
+        sendFBGenericMessage(sender, helpMessage);
+    }
+}
+
+function quickReplyHelp() {
+    let helpMessage = {
+        title: 'To enable a button-based interface, click on the menu-icon on the leftside of the input box.',
+    }
+    sendFBGenericMessage(sender, helpMessage);
 }
 
 function configureThreadSettings(settings, callback) {  //configure FB messenger thread settings
