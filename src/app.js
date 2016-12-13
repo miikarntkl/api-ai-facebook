@@ -20,25 +20,82 @@ const apiAiService = apiai(APIAI_ACCESS_TOKEN, {language: APIAI_LANG, requestSou
 const sessionIds = new Map();
 
 const foursquareVersion = '20160108';
-const foursquareCategories = {
-    food: 'food',
-    drinks: 'drinks',
-    coffee: 'coffee',
-    shops: 'shops',
-    arts: 'arts',
-    topPicks: 'topPicks',
+const venueCategories = {
+    food: {
+        name: 'food',
+        payload: 'PAYLOAD_FOOD'
+    },
+    drinks: {
+        name: 'drinks',
+        payload: 'PAYLOAD_DRINKS'
+    },
+    coffee: {
+        name: 'coffee',
+        payload: 'PAYLOAD_COFFEE'
+    },
+    shops: {
+        name: 'shops',
+        payload: 'PAYLOAD_SHOPS'
+    },
+    arts: {
+        name: 'arts',
+        payload: 'PAYLOAD_ARTS'
+    },
+    topPicks: {
+        name: 'topPicks',
+        payload: 'PAYLOAD_TOPPICKS'
+    }
 };
-var suggestionLimit = 3;
+const helpOptions = {
+    quick_replies: 'PAYLOAD_HELP_QUICKREPLIES',
+    venues: 'PAYLOAD_HELP_VENUES',
+};
+
+const defaultCategory = venueCategories.topPicks.name;
+var suggestionLimit = 5;
+var closestFirst = 0;
+var userSearchParameters = {};
+var quickRepliesOn = false;
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
+const actionHelp = 'help';
+const intentHelp = 'Help';
+const actionStartOver = 'startOver';
+const intentStartOver = 'StartOver';
+
+const persistentMenu = {
+    help: 'PAYLOAD_HELP',
+    enable_quick_replies: 'PAYLOAD_ENABLE_QUICK_REPLIES',
+    disable_quick_replies: 'PAYLOAD_DISABLE_QUICK_REPLIES',
+};
+
+var chosenCategory = {};
 
 function processEvent(event) {
+
     var sender = event.sender.id.toString();
 
-    if ((event.message && event.message.text) || (event.postback && event.postback.payload)) {
-        var text = event.message ? event.message.text : event.postback.payload;
-        // Handle a text message from this sender
+    if ((event.message && event.message.text) || (event.message && event.message.attachments)) {
+        
+        var text = event.message.text;
+
+        if (!isDefined(text) && isDefined(event.message.attachments[0])) { // see if location was sent
+            try {
+                var lat = event.message.attachments[0].payload.coordinates.lat;
+                var long = event.message.attachments[0].payload.coordinates.long;
+                text = lat.toString().concat(', ', long.toString());
+            } catch(e) {
+                console.log('Error with location extraction: ', e.message);
+            }
+        }
+
+        if (!isDefined(text)) {
+            console.log('Error: message text undefined');
+            return;
+        }
+
+        // Handle a message from this sender
 
         if (!sessionIds.has(sender)) {
             sessionIds.set(sender, uuid.v1());
@@ -49,7 +106,8 @@ function processEvent(event) {
         let apiaiRequest = apiAiService.textRequest(text,
             {
                 sessionId: sessionIds.get(sender)
-            });
+            }
+        );
 
         apiaiRequest.on('response', (response) => {
             if (isDefined(response.result)) {
@@ -86,21 +144,18 @@ function processEvent(event) {
                         });
                     }
                 } else if (isDefined(responseText)) {
-                    textResponse(responseText, sender);
+                    textResponse(sender, responseText);
                 } else if (isDefined(action) && isDefined(intentName)) {
-
-                    if (action === actionFindVenue && intentName == intentFindVenue) {
+                    if (action === actionFindVenue && intentName == intentFindVenue) {  //check for findvenue request
                         if (isDefined(parameters)) {
-
-                            console.log('Sender: ', sender);
-
-                            findVenue(parameters, (foursquareResponse) => {
-                                if (isDefined(foursquareResponse)) {
-                                    console.log('Response is defined');
-                                    sendFBCardMessage(sender, formatVenueData(foursquareResponse));
-                                }
-                            });
+                            findVenue(sender, parameters);
                         }
+                    }
+                    else if (action === actionHelp && intentName === intentHelp) {        //check for help request
+                        helpMessage(sender);
+                    }
+                    else if (quickRepliesOn && action === actionStartOver && intentName === intentStartOver) {
+                        requestCategory(sender);
                     }
                 }
 
@@ -110,9 +165,12 @@ function processEvent(event) {
         apiaiRequest.on('error', (error) => console.error(error));
         apiaiRequest.end();
     }
+    else if (event.postback && event.postback.payload) {
+        executeButtonAction(sender, event.postback.payload);
+    }
 }
 
-function textResponse(str, sender) {
+function textResponse(sender, str) {
     console.log('Response as text message');
         // facebook API limit for text length is 320,
         // so we must split message if needed
@@ -152,7 +210,7 @@ function chunkString(s, len) {
                     break;
                 }
                 currReverse--;
-            } while (currReverse > prev)
+            } while (currReverse > prev);
         }
     }
     output.push(s.substr(prev));
@@ -174,17 +232,18 @@ function sendFBMessage(sender, messageData, callback) {
         } else if (response.body.error) {
             console.log('Error: ', response.body.error);
         }
-
         if (callback) {
             callback();
         }
     });
 }
 
-function sendFBCardMessage (sender, messageData, callback) {
-    console.log('Sending card message: ');
-    console.log(messageData);
-
+function sendFBGenericMessage(sender, messageData, callback) {
+    console.log('Sending card message');
+    if (!isDefined(messageData)) {
+        console.log('GenericMessage content undefined');
+        return;
+    }
     var cardOptions = {
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: FB_PAGE_ACCESS_TOKEN},
@@ -192,19 +251,24 @@ function sendFBCardMessage (sender, messageData, callback) {
         json: {
             recipient: {id: sender},
             message: {
-                'attachment': {
-                    'type':'template',
-                    'payload': {
-                      'template_type':'generic',
-                      'elements':[]
+                attachment: {
+                    type:'template',
+                    payload: {
+                      template_type:'generic',
+                      elements: []
                     }
                 }
             }
         }
+    };
+
+    for (let i = 0; i < messageData.length; i++) {
+        cardOptions.json.message.attachment.payload.elements.push(messageData[i]);
     }
 
-    for (let i = 0; i < suggestionLimit; i++) {
-        cardOptions.json.message.attachment.payload.elements.push(messageData[i]);
+    if (userSearchParameters.hasOwnProperty(sender)) {
+        delete userSearchParameters[sender];
+        console.log('Deleted: ', userSearchParameters);
     }
 
     request(cardOptions, (error, response, body) => {
@@ -243,6 +307,156 @@ function sendFBSenderAction(sender, action, callback) {
     }, 1000);
 }
 
+function requestStartOver(sender) {
+    var message = {
+        text: 'Want to go again?',
+        quick_replies: [
+            {
+                content_type: 'text',
+                title: 'Start Over',
+                payload: 'PAYLOAD_START_OVER',
+            },
+        ]
+    };
+    sendFBMessage(sender, message);
+}
+
+function requestCategory(sender) { //enables guided UI with quick replies
+    var message = {
+        text: 'Choose a venue category:',
+        quick_replies: [
+            {
+                content_type: 'text',
+                title: 'Food',
+                payload: venueCategories.food.payload,
+            },
+            {
+                content_type: 'text',
+                title: 'Drinks',
+                payload: venueCategories.drinks.payload,
+            },
+            {
+                content_type: 'text',
+                title: 'Coffee',
+                payload: venueCategories.coffee.payload,
+            },
+            {
+                content_type: 'text',
+                title: 'Shops',
+                payload: venueCategories.shops.payload,
+            },
+            {
+                content_type: 'text',
+                title: 'Arts',
+                payload: venueCategories.arts.payload,
+            },
+            {
+                content_type: 'text',
+                title: 'Top Picks',
+                payload: venueCategories.topPicks.payload,
+            },
+        ]
+    };
+    sendFBMessage(sender, message);
+}
+
+function requestLocation(sender) {
+    var message = {
+        text: 'Share or type a location:',
+        quick_replies: [
+            {
+                content_type: 'location',
+            }
+        ]
+    };
+    sendFBMessage(sender, message);
+}
+
+function executeButtonAction(sender, postback) {
+    switch (postback) {
+        case persistentMenu.help:
+            console.log('Help requested');
+            helpMessage(sender);
+            break;
+        case persistentMenu.enable_quick_replies:
+            console.log('Enable quick replies');
+            requestCategory(sender);
+            quickRepliesOn = true;
+            break;
+        case persistentMenu.disable_quick_replies:
+            console.log('Disable quick replies');
+            quickRepliesOn = false;
+            break;
+        case helpOptions.quick_replies:
+            quickReplyHelp(sender);
+            console.log('Quick Reply Help');
+            break;
+        case helpOptions.venues:
+            venueHelp(sender);
+            console.log('Venue Help');
+            break;
+        default:
+            console.log('No relevant postback found!');
+    }
+}
+
+function helpMessage(sender) {
+    var messageData;
+    if (!quickRepliesOn) {
+        messageData = 'I\'m VenueBot. I can search for venues by their category or location.\n\n'+
+                      'To search by location, type the name of the location or share your location via Facebook Messenger.\n\n'+
+                      'If you submit only a location, I will give you the top spots of any category in that area.\n\n'+
+                      'To limit the search results by venue category, enter the name of the category.\n\n'+
+                      'Supported venue categories are:\nfood, coffee, drinks, shops, arts and top picks.';
+    }
+    else {
+        messageData = 'To get started, type \'start\' or something else along those lines.';
+    }
+    textResponse(sender, messageData);
+}
+
+function configureThreadSettings(settings, callback) {  //configure FB messenger thread settings
+    console.log('Configuring thread settings');         //for now only for adding a simple persistent menu
+
+    var options = {
+        url: 'https://graph.facebook.com/v2.6/me/thread_settings',
+        qs: {access_token: FB_PAGE_ACCESS_TOKEN},
+        method: 'POST',
+        json: {
+            setting_type: 'call_to_actions',
+            thread_state: 'existing_thread',
+            call_to_actions: [
+                {
+                    type: 'postback',
+                    title: 'Help',
+                    payload: 'PAYLOAD_HELP'
+                },
+                {
+                    type: 'postback',
+                    title: 'Enable Quick Replies',
+                    payload: 'PAYLOAD_ENABLE_QUICK_REPLIES'
+                },
+                {
+                    type: 'postback',
+                    title: 'Disable Quick Replies',
+                    payload: 'PAYLOAD_DISABLE_QUICK_REPLIES'
+                }
+            ]
+        }
+    };
+
+    request(options, (error, response, body) => {
+        if (error) {
+            console.log('Error configuring thread settings: ', error);
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error);
+        }
+        if (callback) {
+            callback();
+        }
+    });
+}
+
 function doSubscribeRequest() {
     request({
             method: 'POST',
@@ -269,6 +483,189 @@ function isDefined(obj) {
     return obj != null;
 }
 
+function formatVenueData(raw) {
+    if (!isDefined(raw.response.groups)) {
+        return null;
+    }
+    var items = raw.response.groups[0].items;
+    var venues = [];
+    var j = 0;
+
+    if (isDefined(items)) {
+        for (let i = 0; i < suggestionLimit; i++) {
+            var venue = items[i].venue;
+
+            //add venue name
+            var formatted = {};
+            if (!isDefined(venue.name) || !isDefined(venue.id)) {
+                continue;
+            }
+            formatted.title = venue.name;
+
+            //add venue photo
+            if (venue.photos.count > 0 && isDefined(venue.photos.groups[0])) {
+                let prefix = venue.photos.groups[0].items[0].prefix;
+                let suffix = venue.photos.groups[0].items[0].suffix;
+                let original = 'original';
+                formatted.image_url = prefix.concat(original, suffix);
+            }
+
+            //add venue hours
+            if (isDefined(venue.hours) && isDefined(venue.hours.status)) {
+                formatted.subtitle = venue.hours.status;
+            } else {
+                formatted.subtitle = '';
+            }
+
+            formatted.buttons = [];
+            j = 0;
+
+            //add link to venue
+            formatted.buttons[j] = {
+                type: 'web_url',
+                title: 'View Website',
+            };
+
+            if (isDefined(venue.url)) {
+                formatted.buttons[j].url = venue.url;
+                j++;
+            } else {
+                formatted.buttons[j].url = 'http://foursquare.com/v/'.concat(venue.id);
+                j++;
+            }
+
+            //add link to venue's location on google maps
+            if (isDefined(venue.location)) {
+                var loc = null;
+                if (isDefined(venue.location.address) && isDefined(venue.location.city)) {
+                    loc = venue.location.address.concat(' ', venue.location.city);
+                    if (isDefined(venue.location.postalCode)) {
+                        loc = loc.concat(' ', venue.location.postalCode);
+                    }
+                    if (isDefined(venue.location.country)) {
+                        loc = loc.concat(' ', venue.location.country);
+                    }
+                }
+                if (!isDefined(loc) && isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
+                    let lat = venue.location.lat;
+                    let long = venue.location.lng;
+                    loc = lat.toString().concat(',', long.toString());
+                }
+                if (isDefined(loc)) {
+                    formatted.buttons[j] = {
+                        type: 'web_url',
+                        title: 'Show On Map',
+                    };
+                    formatted.buttons[j].url = 'http://maps.google.com/?q='.concat(loc);
+                    j++;
+                }
+            }
+            venues.push(formatted);
+        }
+    }
+    return venues;
+}
+
+function formatGETOptions(sender, parameters) {
+    console.log(userSearchParameters);
+
+    var venueType = defaultCategory;
+
+    if (isDefined(parameters.venueType)) {
+        venueType = parameters.venueType;
+    }
+    if (userSearchParameters.hasOwnProperty(sender)) {
+        console.log('Same sender: ', sender);
+        if (isDefined(userSearchParameters[sender])) {
+            venueType = userSearchParameters[sender];
+        }
+    }
+
+    var options = {
+        method: 'GET',
+        url: 'http://api.foursquare.com/v2/venues/explore',
+        qs: {
+            client_id: FS_CLIENT_ID,
+            client_secret: FS_CLIENT_SECRET,
+            v: foursquareVersion,
+            m: 'foursquare',
+            section: venueType,
+            limit: suggestionLimit,
+            sortByDistance: closestFirst,
+            venuePhotos: 1,
+        },
+        json: true,
+    };
+
+    console.log('VenueType: ', venueType);
+    console.log('Venue: ', options.qs.section);
+
+    var loc = null;
+    if (isDefined(parameters.location)) {
+        console.log('Location defined');
+        if (isDefined(parameters.location.location)) { //location as address
+            options.qs.near = parameters.location.location;
+        }
+    } else if (isDefined(parameters.coordinates) && isDefined(parameters.coordinates.lat) && isDefined(parameters.coordinates.long)) {
+        console.log('Coordinates defined'); //location as coordinates
+        let lat = parameters.coordinates.lat;
+        let long = parameters.coordinates.long;
+        if (lat > 90 || lat < -90 || long > 180 || long < -180) {
+            return null;
+        }
+        options.qs.ll = lat.toString().concat(', ', long.toString());
+    } else {
+        return null;
+    }
+
+    return options;
+}
+
+function findVenue(sender, parameters) {
+    getVenues(sender, parameters, (foursquareResponse) => {                 //find venues according to parameters
+        if (isDefined(foursquareResponse) && isDefined(foursquareResponse.response)) {
+            let formatted = formatVenueData(foursquareResponse);    //format response data for fb
+            if (isDefined(formatted) && formatted.length > 0) {
+
+                sendFBGenericMessage(sender, formatted, () => {
+                    if (quickRepliesOn) {
+                        console.log('Requesting start over');
+                        requestStartOver(sender);
+                    }
+                });               //send data as fb cards
+            } else {
+                userSearchParameters[sender] = foursquareResponse;
+                requestLocation(sender);              //ask for location if not provided
+                console.log('ID: ', sender);
+                console.log('TYPE: ', userSearchParameters.sender);
+            }
+        } else {
+                userSearchParameters[sender] = foursquareResponse;
+                requestLocation(sender);
+                console.log('ID: ', sender);
+                console.log('TYPE: ', userSearchParameters.sender);
+        }
+    });
+}
+
+function getVenues(sender, parameters, callback) {
+
+    var options = formatGETOptions(sender, parameters);
+
+    if (isDefined(options)) {
+        request(options, (error, res, body) => {  
+            if (error) {
+                console.error('GET Error: ', error);
+            } else {
+                callback(body);
+            }
+        });
+    } else {
+        callback(parameters.venueType);
+    }
+}
+
+
 const app = express();
 
 app.use(bodyParser.text({type: 'application/json'}));
@@ -288,7 +685,6 @@ app.get('/webhook/', (req, res) => {
 app.post('/webhook/', (req, res) => {
     try {
         var data = JSONbig.parse(req.body);
-
         if (data.entry) {
             let entries = data.entry;
             entries.forEach((entry) => {
@@ -297,23 +693,23 @@ app.post('/webhook/', (req, res) => {
                     messaging_events.forEach((event) => {
                         if (event.message && !event.message.is_echo ||
                             event.postback && event.postback.payload) {
+                            console.log('Processing event');
                             processEvent(event);
                         }
                     });
                 }
             });
         }
-
         return res.status(200).json({
             status: "ok"
         });
     } catch (err) {
+        console.log('Webhook error: ', err.message);
         return res.status(400).json({
             status: "error",
             error: err
         });
     }
-
 });
 
 app.listen(REST_PORT, () => {
@@ -321,104 +717,4 @@ app.listen(REST_PORT, () => {
 });
 
 doSubscribeRequest();
-
-function formatVenueData(raw) {
-    var items = raw.response.groups[0].items;
-    var venues = [];
-    var j = 0;
-
-    if (isDefined(items)) {
-        for (let i = 0; i < suggestionLimit; i++) {
-            var venue = items[i].venue;
-            var url = venue.url;
-
-            var formatted = {};
-            formatted.title = venue.name;
-
-            if (isDefined(venue.hours) && isDefined(venue.hours.status)) {
-                formatted.subtitle = venue.hours.status;
-            } else {
-                formatted.subtitle = '';
-            }
-
-            formatted.buttons = [];
-            j = 0;
-
-            formatted.buttons[j] = {
-                type: 'web_url',
-                title: 'View Website',
-            };
-
-            if (isDefined(url)) {
-                formatted.buttons[j].url = url;
-                j++;
-            } else {
-                formatted.buttons[j].url = 'http://foursquare.com/v/'.concat(venue.id);
-                j++;
-            }
-
-            formatted.buttons[j] = {
-                type: 'web_url',
-            };
-            if (isDefined(venue.location) && isDefined(venue.location.formattedAddress && venue.location.formattedAddress.length > 1)) {
-                formatted.buttons[j].title = venue.location.formattedAddress[0].concat(', ', venue.location.formattedAddress[1]);
-            } else {
-                formatted.buttons[j].title = venue.location.city;
-            }
-            formatted.buttons[j].url = 'http://maps.google.com/?q='.concat(formatted.buttons[j].title);
-
-            venues.push(formatted);
-        }
-    }
-    return venues;
-}
-
-function formatGETOptions(parameters) {
-
-    var venueType = parameters.venue;
-    var location = parameters.location.location;
-
-    if (!isDefined(venueType)) {
-        venueType = foursquareCategories.topPicks;
-    }
-
-    if (!isDefined(location)) {
-        return null;
-    }
-
-    var options = {
-        method: 'GET',
-        url: 'http://api.foursquare.com/v2/venues/explore',
-        qs: {
-            client_id: FS_CLIENT_ID,
-            client_secret: FS_CLIENT_SECRET,
-            v: foursquareVersion,
-            m: 'foursquare',
-            near: location,
-            section: venueType,
-            limit: suggestionLimit,
-        },
-        venuePhotos: 1,
-        json: true,
-    };
-
-    console.log('Venue: ', options.qs.section);
-    console.log('Location: ', options.qs.near);
-
-    return options;
-}
-
-function findVenue(parameters, callback) {
-
-    var options = formatGETOptions(parameters);
-
-    if (isDefined(options)) {
-        request(options, (error, res, body) => {  
-            if (error) {
-                console.error('GET Error: ', error);
-            } else {
-                callback(body);
-            }
-        });
-    }
-}
+configureThreadSettings(null);
