@@ -615,6 +615,8 @@ function formatGETOptions(sender, parameters) {
         }
         options.qs.ll = lat.toString().concat(', ', long.toString());
     } else {
+        console.log('No location');
+        console.log(parameters.toString());
         return null;
     }
 
