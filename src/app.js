@@ -627,11 +627,9 @@ function findVenue(sender, parameters) {
             let formatted = formatVenueData(foursquareResponse);    //format response data for fb
             if (isDefined(formatted) && formatted.length > 0) {
 
-
                 sendFBGenericMessage(sender, formatted, () => {
-                    console.log('Hey bitches I\'m done');
-
                     if (quickRepliesOn) {
+                        console.log('Requesting start over');
                         requestStartOver(sender);
                     }
                 });               //send data as fb cards
