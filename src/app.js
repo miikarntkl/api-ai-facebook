@@ -612,7 +612,33 @@ function formatGETOptions(sender, parameters) {
     //country: 'geo-country',
     //postalCode: 'zip-code',
 
-    var loc = '';
+    function formLocationString(param) {
+        var loc = "";
+        if (isDefined(param[locationParameters.street])) {
+            console.log('Street found');
+            loc = loc.concat(param[locationParameters.street]);
+        }
+        if (isDefined(param[locationParameters.postalCode])) {
+            console.log('Postal Code found');
+            loc = loc.concat(' ', param[locationParameters.postalCode]);
+        }
+        if (isDefined(param[locationParameters.city])) {
+            console.log('City found');
+            loc = loc.concat(' ', param[locationParameters.city]);
+        }
+        if (isDefined(param[locationParameters.country])) {
+            console.log('Country found');
+            loc = loc.concat(' ', param[locationParameters.country]);
+        }
+        if (loc.length > 0) {
+            console.log('Loc: ', loc);
+            return loc;
+        } else {
+            return null;
+        }
+    }
+
+    var loc = null;
     if (isDefined(parameters.coordinates) && isDefined(parameters.coordinates.lat) && isDefined(parameters.coordinates.long)) {
         console.log('Coordinates found');
         let lat = parameters.coordinates.lat;
@@ -622,40 +648,17 @@ function formatGETOptions(sender, parameters) {
         }
         console.log('Location set');
         options.qs.ll = lat.toString().concat(', ', long.toString());
-    } else if (() => {
-        console.log('Inside location if')
-        if (isDefined(parameters[locationParameters.street])) {
-            console.log('Street found');
-            loc = loc.concat(parameters[locationParameters.street]);
-        }
-        if (isDefined(parameters[locationParameters.postalCode])) {
-            console.log('Postal Code found');
-            loc = loc.concat(' ', parameters[locationParameters.postalCode]);
-        }
-        if (isDefined(parameters[locationParameters.city])) {
-            console.log('City found');
-            loc = loc.concat(' ', parameters[locationParameters.city]);
-        }
-        if (isDefined(parameters[locationParameters.country])) {
-            console.log('Country found');
-            loc = loc.concat(' ', parameters[locationParameters.country]);
-        }
-        if (loc.length > 0) {
-            console.log('Loc: ', loc);
+    } else {
+        loc = formLocationString(parameters);
+        if (isDefined(loc)) {
             console.log('Location set');
             options.qs.near = loc;
-            return false;
+        } else {
+            console.log('No location found');
+            console.log('Param: ', parameters);
+            return null;
         }
-        return false;
-    }) {
-        console.log('Location check true');
-        // nothing to do yet
-    } else {
-        console.log('No location found');
-        console.log('Param: ', parameters);
-        return null;
     }
-
     return options;
 }
 
