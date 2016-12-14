@@ -622,7 +622,7 @@ function formatGETOptions(sender, parameters) {
         }
         console.log('Location set');
         options.qs.ll = lat.toString().concat(', ', long.toString());
-    } else {
+    } else if (() => {
         if (parameters.hasOwnProperty(locationParameters.street)) {
             console.log('Street found');
             loc = loc.concat(parameters[locationParameters.street]);
@@ -640,11 +640,13 @@ function formatGETOptions(sender, parameters) {
             loc = loc.concat(parameters[locationParameters.country]);
         }
         if (loc.length > 0) {
-            console.log('Location set');
-            options.qs.near = loc;
+            return true;
         }
-    }
-    if (loc.length < 1) {
+        return false;
+    }) {
+        console.log('Location set');
+        options.qs.near = loc;
+    } else {
         console.log('No location found');
         console.log(parameters);
         return null;
