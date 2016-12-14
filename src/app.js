@@ -556,7 +556,7 @@ function formatVenueData(raw) {
                 if (isDefined(venue.location.country)) {
                     loc = loc.concat(' ', venue.location.country);
                 }
-                if (!(loc.length > 0) && isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
+                if (loc.length < 1 && isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
                     let lat = venue.location.lat;
                     let long = venue.location.lng;
                     loc = lat.toString().concat(',', long.toString());
@@ -577,7 +577,7 @@ function formatVenueData(raw) {
 }
 
 function formatGETOptions(sender, parameters) {
-    console.log(userSearchParameters);
+    console.log('UserSearchParameters: ', userSearchParameters);
 
     var venueType = defaultCategory;
 
@@ -711,7 +711,16 @@ function getVenues(sender, parameters, callback) {
             if (error) {
                 console.error('GET Error: ', error);
             } else {
-                callback(body);
+                try {
+                    if (body.meta.errorType === 'failed_geocode') {
+                        requestLocation(sender);
+                        console.log('Failed geocode: ', body);
+                    }   else {
+                        callback(body);
+                    }
+                } catch (err) {
+                    callback(body);
+                }
             }
         });
     } else {
