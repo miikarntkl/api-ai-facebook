@@ -555,7 +555,6 @@ function formatVenueData(raw) {
                 if (isDefined(venue.location.country)) {
                     loc = loc.concat(' ', venue.location.country);
                 }
-                console.log('Sending Foursquare location: ', loc);
                 if (!(loc.length > 0) && isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
                     let lat = venue.location.lat;
                     let long = venue.location.lng;
@@ -659,7 +658,7 @@ function formatGETOptions(sender, parameters) {
     if (isDefined(parameters.coordinates)) {
         var coord = getCoordinates(parameters);
         if (isDefined(coord)) {
-            console.log('Coordinates set');
+            console.log('Coordinates set: ', coord);
             options.qs.ll = coord;
         }
     } else {
@@ -691,14 +690,12 @@ function findVenue(sender, parameters) {
             } else {
                 userSearchParameters[sender] = foursquareResponse;
                 requestLocation(sender);              //ask for location if not provided
-                console.log('ID: ', sender);
-                console.log('TYPE: ', userSearchParameters.sender);
+                console.log('Problem formatting Foursquare data: ', sender);
             }
         } else {
                 userSearchParameters[sender] = foursquareResponse;
                 requestLocation(sender);
-                console.log('ID: ', sender);
-                console.log('TYPE: ', userSearchParameters.sender);
+                console.log('Bad Foursquare response: ', sender);
         }
     });
 }
