@@ -690,7 +690,7 @@ function findVenue(sender, parameters) {
             } else {
                 userSearchParameters[sender] = foursquareResponse;
                 requestLocation(sender);              //ask for location if not provided
-                console.log('Problem formatting Foursquare data: ', sender);
+                console.log('Problem formatting Foursquare data: ', formatted);
             }
         } else {
                 userSearchParameters[sender] = foursquareResponse;
