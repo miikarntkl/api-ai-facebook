@@ -48,7 +48,13 @@ const venueCategories = {
 };
 const helpOptions = {
     quick_replies: 'PAYLOAD_HELP_QUICKREPLIES',
-    venues: 'PAYLOAD_HELP_VENUES',
+    venues: 'PAYLOAD_HELP_VENUES'
+};
+const locationParameters = {
+    city: 'geo-city',
+    street: 'street-address',
+    country: 'geo-country',
+    postalCode: 'zip-code',
 };
 
 const defaultCategory = venueCategories.topPicks.name;
@@ -600,22 +606,45 @@ function formatGETOptions(sender, parameters) {
     console.log('VenueType: ', venueType);
     console.log('Venue: ', options.qs.section);
 
-    var loc = null;
-    if (isDefined(parameters.location)) {
-        console.log('Location defined');
-        if (isDefined(parameters.location.location)) { //location as address
-            options.qs.near = parameters.location.location;
-        }
-    } else if (isDefined(parameters.coordinates) && isDefined(parameters.coordinates.lat) && isDefined(parameters.coordinates.long)) {
-        console.log('Coordinates defined'); //location as coordinates
+
+    //city: 'geo-city',
+    //street: 'street-address',
+    //country: 'geo-country',
+    //postalCode: 'zip-code',
+
+    if (isDefined(parameters.coordinates) && isDefined(parameters.coordinates.lat) && isDefined(parameters.coordinates.long)) {
+        console.log('Coordinates found');
         let lat = parameters.coordinates.lat;
         let long = parameters.coordinates.long;
         if (lat > 90 || lat < -90 || long > 180 || long < -180) {
             return null;
         }
+        console.log('Location set');
         options.qs.ll = lat.toString().concat(', ', long.toString());
     } else {
-        console.log('No location');
+        var loc = '';
+        if (parameters.hasOwnProperty(locationParameters.street)) {
+            console.log('Street found');
+            loc = loc.concat(parameters[locationParameters.street]);
+        }
+        if (parameters.hasOwnProperty(locationParameters.postalCode)) {
+            console.log('Postal Code found');
+            loc = loc.concat(parameters[locationParameters.postalCode]);
+        }
+        if (parameters.hasOwnProperty(locationParameters.city)) {
+            console.log('City found');
+            loc = loc.concat(parameters[locationParameters.city]);
+        }
+        if (parameters.hasOwnProperty(locationParameters.country)) {
+            console.log('Country found');
+            loc = loc.concat(parameters[locationParameters.country]);
+        }
+        if (loc.length > 0) {
+            console.log('Location set');
+            options.qs.near = loc;
+        }
+    } else {
+        console.log('No location found');
         console.log(parameters);
         return null;
     }
