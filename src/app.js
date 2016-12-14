@@ -641,12 +641,13 @@ function formatGETOptions(sender, parameters) {
         }
         if (loc.length > 0) {
             console.log('Loc: ', loc);
+            console.log('Location set');
+            options.qs.near = loc;
             return false;
         }
         return false;
     }) {
-        console.log('Location set');
-        options.qs.near = loc;
+        // nothing to do yet
     } else {
         console.log('No location found');
         console.log('Param: ', parameters);
