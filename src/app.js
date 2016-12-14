@@ -542,22 +542,25 @@ function formatVenueData(raw) {
 
             //add link to venue's location on google maps
             if (isDefined(venue.location)) {
-                var loc = null;
-                if (isDefined(venue.location.address) && isDefined(venue.location.city)) {
-                    loc = venue.location.address.concat(' ', venue.location.city);
-                    if (isDefined(venue.location.postalCode)) {
-                        loc = loc.concat(' ', venue.location.postalCode);
-                    }
-                    if (isDefined(venue.location.country)) {
-                        loc = loc.concat(' ', venue.location.country);
-                    }
+                var loc = '';
+                if (isDefined(venue.location.address)) {
+                    loc = loc.concat(venue.location.address);
                 }
-                if (!isDefined(loc) && isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
+                if (isDefined(venue.location.postalCode)) {
+                    loc = loc.concat(' ', venue.location.postalCode);
+                }
+                if (isDefined(venue.location.city)) {
+                    loc = loc.concat(' ', venue.location.city);
+                }
+                if (isDefined(venue.location.country)) {
+                    loc = loc.concat(' ', venue.location.country);
+                }
+                if (!(loc.length > 0) && isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
                     let lat = venue.location.lat;
                     let long = venue.location.lng;
                     loc = lat.toString().concat(',', long.toString());
                 }
-                if (isDefined(loc)) {
+                if (loc.length > 0) {
                     formatted.buttons[j] = {
                         type: 'web_url',
                         title: 'Show On Map',
@@ -623,15 +626,16 @@ function formatGETOptions(sender, parameters) {
             loc = loc.concat(' ', param[locationParameters.postalCode]);
         }
         if (isDefined(param[locationParameters.city])) {
-            console.log('City found: ', param[locationParameters.city]);
-            loc = loc.concat(' ', param[locationParameters.city]);
+            if (Array.isArray(param[locationParameters.city]) && param[locationParameters.city].length > 0) {
+                console.log('City found: ', param[locationParameters.city]);
+                loc = loc.concat(' ', param[locationParameters.city]);
+            }
         }
         if (isDefined(param[locationParameters.country])) {
             console.log('Country found: ', param[locationParameters.country]);
             loc = loc.concat(' ', param[locationParameters.country]);
         }
         if (loc.length > 0) {
-            console.log('Loc: ', loc);
             return loc;
         } else {
             return null;
@@ -656,7 +660,7 @@ function formatGETOptions(sender, parameters) {
         console.log('Coordinates found');
         var coord = getCoordinates(parameters);
         if (isDefined(coord)) {
-            console.log('Location set');
+            console.log('Coordinates set');
             options.qs.ll = coord;
         }
     } else {
