@@ -612,6 +612,7 @@ function formatGETOptions(sender, parameters) {
     //country: 'geo-country',
     //postalCode: 'zip-code',
 
+    var loc = '';
     if (isDefined(parameters.coordinates) && isDefined(parameters.coordinates.lat) && isDefined(parameters.coordinates.long)) {
         console.log('Coordinates found');
         let lat = parameters.coordinates.lat;
@@ -622,7 +623,6 @@ function formatGETOptions(sender, parameters) {
         console.log('Location set');
         options.qs.ll = lat.toString().concat(', ', long.toString());
     } else {
-        var loc = '';
         if (parameters.hasOwnProperty(locationParameters.street)) {
             console.log('Street found');
             loc = loc.concat(parameters[locationParameters.street]);
@@ -643,7 +643,8 @@ function formatGETOptions(sender, parameters) {
             console.log('Location set');
             options.qs.near = loc;
         }
-    } else {
+    }
+    if (loc.length < 1) {
         console.log('No location found');
         console.log(parameters);
         return null;
