@@ -647,6 +647,7 @@ function formatGETOptions(sender, parameters) {
         }
         return false;
     }) {
+        console.log('Location check true');
         // nothing to do yet
     } else {
         console.log('No location found');
