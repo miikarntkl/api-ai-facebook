@@ -491,6 +491,7 @@ function isDefined(obj) {
 
 function formatVenueData(raw) {
     if (!isDefined(raw.response.groups)) {
+        console.log('Invalid Foursquare response');
         return null;
     }
     var items = raw.response.groups[0].items;
