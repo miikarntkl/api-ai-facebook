@@ -650,14 +650,12 @@ function formatGETOptions(sender, parameters) {
             if (lat > 90 || lat < -90 || long > 180 || long < -180) {
                 return null;
             }
-            console.log('Location set');
             return lat.toString().concat(', ', long.toString());
         }
         return null;
     }
 
     if (isDefined(parameters.coordinates)) {
-        console.log('Coordinates found');
         var coord = getCoordinates(parameters);
         if (isDefined(coord)) {
             console.log('Coordinates set');
@@ -666,7 +664,7 @@ function formatGETOptions(sender, parameters) {
     } else {
         var loc = getLocationString(parameters);
         if (isDefined(loc)) {
-            console.log('Location set');
+            console.log('Location set: ', loc);
             options.qs.near = loc;
         } else {
             console.log('No location found');
