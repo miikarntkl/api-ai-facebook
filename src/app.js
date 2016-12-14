@@ -555,6 +555,7 @@ function formatVenueData(raw) {
                 if (isDefined(venue.location.country)) {
                     loc = loc.concat(' ', venue.location.country);
                 }
+                console.log('Sending Foursquare location: ', loc);
                 if (!(loc.length > 0) && isDefined(venue.location.lat) && isDefined(venue.location.lng)) {
                     let lat = venue.location.lat;
                     let long = venue.location.lng;
