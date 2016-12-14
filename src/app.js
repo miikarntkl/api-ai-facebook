@@ -623,6 +623,7 @@ function formatGETOptions(sender, parameters) {
         console.log('Location set');
         options.qs.ll = lat.toString().concat(', ', long.toString());
     } else if (() => {
+        console.log('Inside location if')
         if (isDefined(parameters[locationParameters.street])) {
             console.log('Street found');
             loc = loc.concat(parameters[locationParameters.street]);
