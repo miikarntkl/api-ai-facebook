@@ -612,22 +612,22 @@ function formatGETOptions(sender, parameters) {
     //country: 'geo-country',
     //postalCode: 'zip-code',
 
-    function formLocationString(param) {
+    function getLocationString(param) {
         var loc = "";
         if (isDefined(param[locationParameters.street])) {
-            console.log('Street found');
+            console.log('Street found: ', param[locationParameters.street]);
             loc = loc.concat(param[locationParameters.street]);
         }
         if (isDefined(param[locationParameters.postalCode])) {
-            console.log('Postal Code found');
+            console.log('Postal Code found: ', param[locationParameters.postalCode]);
             loc = loc.concat(' ', param[locationParameters.postalCode]);
         }
         if (isDefined(param[locationParameters.city])) {
-            console.log('City found');
+            console.log('City found: ', param[locationParameters.city]);
             loc = loc.concat(' ', param[locationParameters.city]);
         }
         if (isDefined(param[locationParameters.country])) {
-            console.log('Country found');
+            console.log('Country found: ', param[locationParameters.country]);
             loc = loc.concat(' ', param[locationParameters.country]);
         }
         if (loc.length > 0) {
@@ -638,18 +638,29 @@ function formatGETOptions(sender, parameters) {
         }
     }
 
-    var loc = null;
-    if (isDefined(parameters.coordinates) && isDefined(parameters.coordinates.lat) && isDefined(parameters.coordinates.long)) {
-        console.log('Coordinates found');
-        let lat = parameters.coordinates.lat;
-        let long = parameters.coordinates.long;
-        if (lat > 90 || lat < -90 || long > 180 || long < -180) {
-            return null;
+    function getCoordinates(param) {
+        if (isDefined(param.coordinates.lat) && isDefined(param.coordinates.long)) {
+            console.log('Coordinates found');
+            let lat = param.coordinates.lat;
+            let long = param.coordinates.long;
+            if (lat > 90 || lat < -90 || long > 180 || long < -180) {
+                return null;
+            }
+            console.log('Location set');
+            return lat.toString().concat(', ', long.toString());
         }
-        console.log('Location set');
-        options.qs.ll = lat.toString().concat(', ', long.toString());
+        return null;
+    }
+
+    if (isDefined(parameters.coordinates)) {
+        console.log('Coordinates found');
+        var coord = getCoordinates(parameters);
+        if (isDefined(coord)) {
+            console.log('Location set');
+            options.qs.ll = coord;
+        }
     } else {
-        loc = formLocationString(parameters);
+        var loc = getLocationString(parameters);
         if (isDefined(loc)) {
             console.log('Location set');
             options.qs.near = loc;
