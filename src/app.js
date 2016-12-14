@@ -623,24 +623,25 @@ function formatGETOptions(sender, parameters) {
         console.log('Location set');
         options.qs.ll = lat.toString().concat(', ', long.toString());
     } else if (() => {
-        if (parameters.hasOwnProperty(locationParameters.street)) {
+        if (isDefined(parameters[locationParameters.street])) {
             console.log('Street found');
             loc = loc.concat(parameters[locationParameters.street]);
         }
-        if (parameters.hasOwnProperty(locationParameters.postalCode)) {
+        if (isDefined(parameters[locationParameters.postalCode])) {
             console.log('Postal Code found');
-            loc = loc.concat(parameters[locationParameters.postalCode]);
+            loc = loc.concat(' ', parameters[locationParameters.postalCode]);
         }
-        if (parameters.hasOwnProperty(locationParameters.city)) {
+        if (isDefined(parameters[locationParameters.city])) {
             console.log('City found');
-            loc = loc.concat(parameters[locationParameters.city]);
+            loc = loc.concat(' ', parameters[locationParameters.city]);
         }
-        if (parameters.hasOwnProperty(locationParameters.country)) {
+        if (isDefined(parameters[locationParameters.country])) {
             console.log('Country found');
-            loc = loc.concat(parameters[locationParameters.country]);
+            loc = loc.concat(' ', parameters[locationParameters.country]);
         }
         if (loc.length > 0) {
-            return true;
+            console.log('Loc: ', loc);
+            return false;
         }
         return false;
     }) {
@@ -648,7 +649,7 @@ function formatGETOptions(sender, parameters) {
         options.qs.near = loc;
     } else {
         console.log('No location found');
-        console.log(parameters);
+        console.log('Param: ', parameters);
         return null;
     }
 
