@@ -336,9 +336,8 @@ function requestStart(sender, message) {
         ]
     };
     if (!quickRepliesOn) {
-        delete messageData.quick_replies;
-        sendFBMessage(sender, messageData);
-        sendFBMessage(sender, 'What are you looking for today?');
+        textResponse(sender, message);
+        textResponse(sender, 'What are you looking for today?');
     }
     else {
         sendFBMessage(sender, messageData);
