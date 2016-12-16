@@ -336,8 +336,7 @@ function requestStart(sender, message) {
         ]
     };
     if (!quickRepliesOn) {
-        textResponse(sender, message);
-        textResponse(sender, 'What are you looking for today?');
+        textResponse(sender, message.concat(' ', 'What are you looking for today?'));
     }
     else {
         sendFBMessage(sender, messageData);
