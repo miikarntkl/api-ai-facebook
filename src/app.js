@@ -386,10 +386,10 @@ function requestCategory(sender) { //enables guided UI with quick replies
 function requestLocation(sender, message) {
     var defaultMessage = 'Share or type a location:';
     if (isDefined(message)) {
-        message = message.concat(' ', defaultMessage);
+        defaultMessage = message.concat(' ', defaultMessage);
     }
     var messageData = {
-        text: message,
+        text: defaultMessage,
         quick_replies: [
             {
                 content_type: 'location',
@@ -736,14 +736,12 @@ function getVenues(sender, parameters, callback) {
             } else {
                 try {
                     if (body.meta.errorType === 'failed_geocode') {
-                        /*
                         let index = body.meta.errorDetail.indexOf(':');
                         let loc = '';
                         if (body.meta.errorDetail.length > index) { //get failed location
                             loc = body.meta.errorDetail.substring(index)
-                        }*/
-                        //requestLocation(sender, 'Sorry, I couldn\'t find'.concat(loc, '.'));
-                        requestLocation(sender);
+                        }
+                        requestLocation(sender, 'Sorry, I couldn\'t find'.concat(loc, '.'));
                         console.log('Failed geocode: ', body);
                     }   else {
                         callback(body);
