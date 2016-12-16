@@ -60,8 +60,9 @@ const locationParameters = {
 const defaultCategory = venueCategories.topPicks.name;
 var suggestionLimit = 5;
 var closestFirst = 0;
-var userSearchParameters = {};
+var userOptions = {};
 var quickRepliesOn = false;
+var openNow = 1;
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -280,11 +281,6 @@ function sendFBGenericMessage(sender, messageData, callback) {
         cardOptions.json.message.attachment.payload.elements.push(messageData[i]);
     }
 
-    if (userSearchParameters.hasOwnProperty(sender)) {
-        delete userSearchParameters[sender];
-        console.log('Deleted: ', userSearchParameters);
-    }
-
     request(cardOptions, (error, response, body) => {
         if (error) {
             console.log('Error sending card: ', error);
@@ -322,6 +318,10 @@ function sendFBSenderAction(sender, action, callback) {
 }
 
 function requestStart(sender, message) {
+    if (userOptions.hasOwnProperty(sender)) {
+        delete userOptions[sender];
+        console.log('After deletion: ', userOptions);
+    }
     console.log('Requesting start!');
     if (!isDefined(message)) {
         message = 'Want to go again?';
@@ -386,7 +386,7 @@ function requestCategory(sender) { //enables guided UI with quick replies
 function requestLocation(sender, message) {
     var defaultMessage = 'Share or type a location:';
     if (isDefined(message)) {
-        defaultMessage = message.concat(' ', defaultMessage);
+        defaultMessage = message;
     }
     var messageData = {
         text: defaultMessage,
@@ -396,7 +396,6 @@ function requestLocation(sender, message) {
             }
         ]
     };
-    console.log('MessageData: ', messageData);
     sendFBMessage(sender, messageData);
 }
 
@@ -429,13 +428,14 @@ function executeButtonAction(sender, postback) {
 }
 
 function helpMessage(sender) {
+    console.log('Sending help message');
     var messageData;
     if (!quickRepliesOn) {
         messageData = 'I\'m VenueBot. I can search for venues by their category or location.\n\n'+
                       'To search by location, type the name of the location or share your location via Facebook Messenger.\n\n'+
-                      'If you submit only a location, I will give you the top spots of any category in that area.\n\n'+
                       'To limit the search results by venue category, enter the name of the category.\n\n'+
-                      'Supported venue categories are:\nfood, coffee, drinks, shops, arts and top picks.';
+                      'Supported venue categories are:\nfood, coffee, drinks, shops, arts and top picks.\n\n'+
+                      'If you submit only a location, I will give you the top spots of any category in that area.';
     }
     else {
         messageData = 'To get started, type \'start\' or something else along those lines.';
@@ -599,7 +599,7 @@ function formatVenueData(raw) {
 }
 
 function formatGETOptions(sender, parameters) {
-    console.log('UserSearchParameters: ', userSearchParameters);
+    console.log('UserOptions: ', userOptions);
     console.log('Parameters: ', parameters);
 
     var venueType = defaultCategory;
@@ -607,10 +607,10 @@ function formatGETOptions(sender, parameters) {
     if (isDefined(parameters.venueType)) {
         venueType = parameters.venueType;
     }
-    if (userSearchParameters.hasOwnProperty(sender)) {
+    if (userOptions.hasOwnProperty(sender)) {
         console.log('Same sender: ', sender);
-        if (isDefined(userSearchParameters[sender])) {
-            venueType = userSearchParameters[sender];
+        if (isDefined(userOptions[sender]) && isDefined(userOptions[sender].venueType)) {
+            venueType = userOptions[sender].venueType;
         }
     }
 
@@ -711,13 +711,13 @@ function findVenue(sender, parameters) {
                     }
                 });               //send data as fb cards
             } else {
-                userSearchParameters[sender] = foursquareResponse;
+                userOptions[sender].venueType = foursquareResponse;
                 requestLocation(sender);              //ask for location if not provided
                 console.log('Problem formatting Foursquare data: ', formatted);
                 console.log('Response: ', foursquareResponse);
             }
         } else {
-                userSearchParameters[sender] = foursquareResponse;
+                userOptions[sender].venueType = foursquareResponse;
                 requestLocation(sender);
                 console.log('Bad Foursquare response: ', sender);
         }
@@ -727,7 +727,6 @@ function findVenue(sender, parameters) {
 function getVenues(sender, parameters, callback) {
 
     var options = formatGETOptions(sender, parameters);
-    console.log('GET Options: ', options);
     if (isDefined(options)) {
         console.log('Venue GET Request');
         request(options, (error, res, body) => {  
@@ -742,7 +741,7 @@ function getVenues(sender, parameters, callback) {
                             loc = body.meta.errorDetail.substring(index)
                         }
                         requestLocation(sender, 'Sorry, I couldn\'t find'.concat(loc, '.'));
-                        console.log('Failed geocode: ', body);
+                        console.log('Failed geocode: ', body.meta.errorDetail);
                     }   else {
                         callback(body);
                     }
