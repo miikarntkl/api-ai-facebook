@@ -734,12 +734,14 @@ function getVenues(sender, parameters, callback) {
             } else {
                 try {
                     if (body.meta.errorType === 'failed_geocode') {
+                        /*
                         let index = body.meta.errorDetail.indexOf(':');
                         let loc = '';
                         if (body.meta.errorDetail.length > index) { //get failed location
                             loc = body.meta.errorDetail.substring(index)
-                        }
-                        requestLocation(sender, 'Sorry, I couldn\'t find'.concat(loc, '.'));
+                        }*/
+                        //requestLocation(sender, 'Sorry, I couldn\'t find'.concat(loc, '.'));
+                        requestLocation(sender);
                         console.log('Failed geocode: ', body);
                     }   else {
                         callback(body);
