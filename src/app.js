@@ -711,12 +711,18 @@ function findVenue(sender, parameters) {
                     }
                 });               //send data as fb cards
             } else {
+                if (!isDefined(userOptions[sender])) {
+                    userOptions[sender] = {};
+                }
                 userOptions[sender].venueType = foursquareResponse;
                 requestLocation(sender);              //ask for location if not provided
                 console.log('Problem formatting Foursquare data: ', formatted);
                 console.log('Response: ', foursquareResponse);
             }
         } else {
+                if (!isDefined(userOptions[sender])) {
+                    userOptions[sender] = {};
+                }
                 userOptions[sender].venueType = foursquareResponse;
                 requestLocation(sender);
                 console.log('Bad Foursquare response: ', sender);
