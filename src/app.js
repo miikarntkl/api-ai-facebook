@@ -69,6 +69,8 @@ const actionHelp = 'help';
 const intentHelp = 'Help';
 const actionStartOver = 'startOver';
 const intentStartOver = 'StartOver';
+const actionGreetings = 'smalltalk.greetings';
+const intentGreetings = '';
 
 const persistentMenu = {
     help: 'PAYLOAD_HELP',
@@ -151,7 +153,15 @@ function processEvent(event) {
                         });
                     }
                 } else if (isDefined(responseText)) {
-                    textResponse(sender, responseText);
+                    if (action === actionGreetings) {
+                        textResponse(sender, responseText);
+                        if (quickRepliesOn) {
+                            requestStartOver(sender, responseText);
+                        }
+                    }
+                    else {
+                        textResponse(sender, responseText);
+                    }
                 } else if (isDefined(action) && isDefined(intentName)) {
                     if (action === actionFindVenue && intentName == intentFindVenue) {  //check for findvenue request
                         if (isDefined(parameters)) {
@@ -314,9 +324,12 @@ function sendFBSenderAction(sender, action, callback) {
     }, 1000);
 }
 
-function requestStartOver(sender) {
+function requestStartOver(sender, message) {
+    if (!isDefined(message)) {
+        message = 'Want to go again?';
+    }
     var message = {
-        text: 'Want to go again?',
+        text: message,
         quick_replies: [
             {
                 content_type: 'text',
