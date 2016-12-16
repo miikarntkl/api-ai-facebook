@@ -337,11 +337,11 @@ function requestStart(sender, message) {
     };
     if (!quickRepliesOn) {
         delete messageData.quick_replies;
-        textResponse(sender, messageData);
-        textResponse(sender, 'What are you looking for today?');
+        sendFBMessage(sender, messageData);
+        sendFBMessage(sender, 'What are you looking for today?');
     }
     else {
-        textResponse(sender, messageData);
+        sendFBMessage(sender, messageData);
     }
 }
 
