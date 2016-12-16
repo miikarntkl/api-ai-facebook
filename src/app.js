@@ -386,7 +386,7 @@ function requestCategory(sender) { //enables guided UI with quick replies
 function requestLocation(sender, message) {
     var defaultMessage = 'Share or type a location:';
     if (isDefined(message)) {
-        message.concat(' ', defaultMessage);
+        message = message.concat(' ', defaultMessage);
     }
     var messageData = {
         text: message,
@@ -396,6 +396,7 @@ function requestLocation(sender, message) {
             }
         ]
     };
+    console.log('MessageData: ', messageData);
     sendFBMessage(sender, messageData);
 }
 
@@ -728,6 +729,7 @@ function getVenues(sender, parameters, callback) {
     var options = formatGETOptions(sender, parameters);
     console.log('GET Options: ', options);
     if (isDefined(options)) {
+        console.log('Venue GET Request');
         request(options, (error, res, body) => {  
             if (error) {
                 console.error('GET Error: ', error);
