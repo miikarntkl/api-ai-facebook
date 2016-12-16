@@ -154,10 +154,7 @@ function processEvent(event) {
                     }
                 } else if (isDefined(responseText)) {
                     if (action === actionGreetings) {
-                        textResponse(sender, responseText);
-                        if (quickRepliesOn) {
-                            requestStartOver(sender, responseText);
-                        }
+                        requestStart(sender, responseText);
                     }
                     else {
                         textResponse(sender, responseText);
@@ -324,11 +321,11 @@ function sendFBSenderAction(sender, action, callback) {
     }, 1000);
 }
 
-function requestStartOver(sender, message) {
+function requestStart(sender, message) {
     if (!isDefined(message)) {
         message = 'Want to go again?';
     }
-    var message = {
+    var messageData = {
         text: message,
         quick_replies: [
             {
@@ -338,7 +335,14 @@ function requestStartOver(sender, message) {
             },
         ]
     };
-    sendFBMessage(sender, message);
+    if (!quickRepliesOn) {
+        delete messageData.quick_replies;
+        textResponse(sender, messageData);
+        textResponse(sender, 'What are you looking for today?');
+    }
+    else {
+        textResponse(sender, messageData);
+    }
 }
 
 function requestCategory(sender) { //enables guided UI with quick replies
@@ -380,16 +384,20 @@ function requestCategory(sender) { //enables guided UI with quick replies
     sendFBMessage(sender, message);
 }
 
-function requestLocation(sender) {
-    var message = {
-        text: 'Share or type a location:',
+function requestLocation(sender, message) {
+    var defaultMessage = 'Share or type a location:';
+    if (isDefined(message)) {
+        message.concat(' ', defaultMessage);
+    }
+    var messageData = {
+        text: message,
         quick_replies: [
             {
                 content_type: 'location',
             }
         ]
     };
-    sendFBMessage(sender, message);
+    sendFBMessage(sender, messageData);
 }
 
 function executeButtonAction(sender, postback) {
@@ -699,7 +707,7 @@ function findVenue(sender, parameters) {
                 sendFBGenericMessage(sender, formatted, () => {
                     if (quickRepliesOn) {
                         console.log('Requesting start over');
-                        requestStartOver(sender);
+                        requestStart(sender);
                     }
                 });               //send data as fb cards
             } else {
@@ -727,7 +735,12 @@ function getVenues(sender, parameters, callback) {
             } else {
                 try {
                     if (body.meta.errorType === 'failed_geocode') {
-                        requestLocation(sender);
+                        let index = body.meta.errorDetail.indexOf(':');
+                        let loc = '';
+                        if (body.meta.errorDetail.length > index) { //get failed location
+                            loc = body.meta.errorDetail.substring(index)
+                        }
+                        requestLocation(sender, 'Sorry, I couldn\'t find'.concat(loc, '.'));
                         console.log('Failed geocode: ', body);
                     }   else {
                         callback(body);
