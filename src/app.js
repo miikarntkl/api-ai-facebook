@@ -124,6 +124,7 @@ function processEvent(event) {
                 var parameters = response.result.parameters;
 
                 console.log(action);
+                console.log(response.result);
 
                 if (isDefined(responseData) && isDefined(responseData.facebook)) {
                     if (!Array.isArray(responseData.facebook)) {
