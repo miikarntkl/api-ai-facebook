@@ -322,6 +322,7 @@ function sendFBSenderAction(sender, action, callback) {
 }
 
 function requestStart(sender, message) {
+    console.log('Requesting start!');
     if (!isDefined(message)) {
         message = 'Want to go again?';
     }
@@ -690,7 +691,6 @@ function formatGETOptions(sender, parameters) {
             options.qs.near = loc;
         } else {
             console.log('No location found');
-            console.log('Param: ', parameters);
             return null;
         }
     }
@@ -726,7 +726,7 @@ function findVenue(sender, parameters) {
 function getVenues(sender, parameters, callback) {
 
     var options = formatGETOptions(sender, parameters);
-
+    console.log('GET Options: ', options);
     if (isDefined(options)) {
         request(options, (error, res, body) => {  
             if (error) {
