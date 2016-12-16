@@ -598,6 +598,7 @@ function formatVenueData(raw) {
 
 function formatGETOptions(sender, parameters) {
     console.log('UserSearchParameters: ', userSearchParameters);
+    console.log('Parameters: ', parameters);
 
     var venueType = defaultCategory;
 
