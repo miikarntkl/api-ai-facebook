@@ -62,7 +62,6 @@ var suggestionLimit = 5;
 var closestFirst = 0;
 var userOptions = {};
 var quickRepliesOn = false;
-var openNow = 1;
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -170,6 +169,10 @@ function processEvent(event) {
                         helpMessage(sender);
                     }
                     else if (quickRepliesOn && action === actionStartOver && intentName === intentStartOver) {
+                        if (userOptions.hasOwnProperty(sender)) {
+                            delete userOptions[sender];
+                            console.log('After deletion: ', userOptions);
+                        }
                         requestCategory(sender);
                     }
                 }
@@ -317,24 +320,38 @@ function sendFBSenderAction(sender, action, callback) {
     }, 1000);
 }
 
-function requestStart(sender, message) {
+function requestStart(sender, message, buttons) {
+    console.log('Requesting start!');
     if (userOptions.hasOwnProperty(sender)) {
         delete userOptions[sender];
         console.log('After deletion: ', userOptions);
     }
-    console.log('Requesting start!');
+    requestContinue(sender, message, buttons);
+}
+
+function requestContinue(sender, message, buttons) {
+    var defaultButtons = [
+        {
+            content_type: 'text',
+            title: 'Start Over',
+            payload: 'PAYLOAD_START_OVER',
+        },
+    ];
     if (!isDefined(message)) {
-        message = 'Want to go again?';
+        message = 'Does these help?';
+    }
+    if (isDefined(buttons)) {
+        try {
+            for (let i = 0; i < buttons.length; i++) {
+                defaultButtons.push(buttons[i]);
+            }
+        } catch (err) {
+            console.log('Start button error: ', err.message);
+        }
     }
     var messageData = {
         text: message,
-        quick_replies: [
-            {
-                content_type: 'text',
-                title: 'Start Over',
-                payload: 'PAYLOAD_START_OVER',
-            },
-        ]
+        quick_replies: defaultButtons,
     };
     if (!quickRepliesOn) {
         textResponse(sender, message.concat(' ', 'What are you looking for today?'));
@@ -422,8 +439,27 @@ function executeButtonAction(sender, postback) {
             venueHelp(sender);
             console.log('Venue Help');
             break;
+        case 'PAYLOAD_OPEN_ONLY':
+            showOpenOnly(sender);
+            break;
         default:
             console.log('No relevant postback found!');
+    }
+}
+
+function showOpenOnly(sender) {
+    if (isDefined(userOptions[sender])) {
+        try {
+            if (isDefined(userOptions[sender].options)) {
+                userOptions[sender].openOnly = 1;
+                findVenue(sender, null, userOptions[sender].options);
+            }
+        } catch (err) {
+            console.log('Open only error: ', err.message);
+        }
+    }
+    else {
+        console.log('No saved data for: ', sender);
     }
 }
 
@@ -600,7 +636,6 @@ function formatVenueData(raw) {
 
 function formatGETOptions(sender, parameters) {
     console.log('UserOptions: ', userOptions);
-    console.log('Parameters: ', parameters);
 
     var venueType = defaultCategory;
 
@@ -608,8 +643,8 @@ function formatGETOptions(sender, parameters) {
         venueType = parameters.venueType;
     }
     if (userOptions.hasOwnProperty(sender)) {
-        console.log('Same sender: ', sender);
-        if (isDefined(userOptions[sender]) && isDefined(userOptions[sender].venueType)) {
+        console.log('User options found: ', sender);
+        if (isDefined(userOptions[sender]) && isDefined(userOptions[sender].venueType)) { //TODO: options save
             venueType = userOptions[sender].venueType;
         }
     }
@@ -630,8 +665,8 @@ function formatGETOptions(sender, parameters) {
         json: true,
     };
 
-    console.log('VenueType: ', venueType);
-    console.log('Venue: ', options.qs.section);
+    console.log('VenueType before: ', options.qs.section);
+    console.log('VenueType after: ', options.qs.section);
 
 
     //city: 'geo-city',
@@ -692,47 +727,69 @@ function formatGETOptions(sender, parameters) {
             options.qs.near = loc;
         } else {
             console.log('No location found');
-            return null;
+            options = null;
         }
     }
+    if(!isDefined(userOptions[sender])) {
+        userOptions[sender] = {};
+        userOptions[sender].options = options;
+    }
+
     return options;
 }
 
-function findVenue(sender, parameters) {
-    getVenues(sender, parameters, (foursquareResponse) => {                 //find venues according to parameters
+function findVenue(sender, parameters, savedOptions) {
+
+    var options = null;
+    if (!isDefined(savedOptions)) {
+        options = formatGETOptions(sender, parameters);
+    } else {
+        options = savedOptions;
+    }
+
+    getVenues(sender, options, (foursquareResponse) => {                 //find venues according to parameters
         if (isDefined(foursquareResponse) && isDefined(foursquareResponse.response)) {
             let formatted = formatVenueData(foursquareResponse);    //format response data for fb
-            if (isDefined(formatted) && formatted.length > 0) {
 
+            if (isDefined(formatted) && formatted.length > 0) {
                 sendFBGenericMessage(sender, formatted, () => {
                     if (quickRepliesOn) {
                         console.log('Requesting start over');
-                        requestStart(sender);
+                        let buttons = [
+                            {
+                                content_type: 'text',
+                                title: 'Show only open venues',
+                                payload: 'PAYLOAD_OPEN_ONLY',
+                            },
+                        ];
+                        if (isDefined(userOptions[sender]) && !isDefined(userOptions[sender].openOnly) && isDefined(userOptions[sender].options)) {
+                            requestContinue(sender, null, buttons);
+                        } else {
+                            requestStart(sender);
+                        }
+                        
                     }
                 });               //send data as fb cards
             } else {
                 if (!isDefined(userOptions[sender])) {
                     userOptions[sender] = {};
                 }
-                userOptions[sender].venueType = foursquareResponse;
+                userOptions[sender].venueType = parameters.venueType;
                 requestLocation(sender);              //ask for location if not provided
                 console.log('Problem formatting Foursquare data: ', formatted);
-                console.log('Response: ', foursquareResponse);
             }
         } else {
                 if (!isDefined(userOptions[sender])) {
                     userOptions[sender] = {};
                 }
-                userOptions[sender].venueType = foursquareResponse;
+                userOptions[sender].venueType = parameters.venueType;
                 requestLocation(sender);
-                console.log('Bad Foursquare response: ', sender);
+                console.log('No Foursquare response: ', parameters);
         }
     });
 }
 
-function getVenues(sender, parameters, callback) {
-
-    var options = formatGETOptions(sender, parameters);
+function getVenues(sender, options, callback) {
     if (isDefined(options)) {
         console.log('Venue GET Request');
         request(options, (error, res, body) => {  
@@ -744,12 +801,12 @@ function getVenues(sender, parameters, callback) {
                         let index = body.meta.errorDetail.indexOf(':');
                         let loc = '';
                         if (body.meta.errorDetail.length > index) { //get failed location
-                            loc = body.meta.errorDetail.substring(index)
+                            loc = body.meta.errorDetail.substring(index);
                         }
                         requestLocation(sender, 'Sorry, I couldn\'t find'.concat(loc, '.'));
                         console.log('Failed geocode: ', body.meta.errorDetail);
                     }   else {
-                        callback(body);
+                            callback(body);
                     }
                 } catch (err) {
                     callback(body);
@@ -757,7 +814,7 @@ function getVenues(sender, parameters, callback) {
             }
         });
     } else {
-        callback(parameters.venueType);
+        callback(null);
     }
 }
 
