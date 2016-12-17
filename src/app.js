@@ -70,6 +70,7 @@ const actionStartOver = 'startOver';
 const intentStartOver = 'StartOver';
 const actionGreetings = 'smalltalk.greetings';
 const actionOpenOnly = 'showOpenOnly';
+const actionSortByDistance = 'sortByDistance';
 
 const persistentMenu = {
     help: 'PAYLOAD_HELP',
@@ -186,8 +187,10 @@ function processEvent(event) {
                     else if (action === actionOpenOnly) {
                         showOpenOnly(sender);
                     }
+                    else if (action === actionSortByDistance) {
+                        sortByDistance(sender);
+                    }
                 }
-
             }
         });
 
@@ -347,7 +350,7 @@ function requestContinue(sender, message, buttons) {
         },
     ];
     if (!isDefined(message)) {
-        message = 'Does these help?';
+        message = 'What do you want to do now?';
     }
     if (isDefined(buttons)) {
         try {
@@ -498,8 +501,7 @@ function sortByDistance(sender) {
     if (isDefined(userOptions[sender])) {
         try {
             if (isDefined(userOptions[sender].options)) {
-                userOptions[sender].openOnly = 1;
-                userOptions[sender].options.qs.openNow = 1;
+                userOptions[sender].options.qs.sortByDistance = 1;
                 findVenue(sender, null, userOptions[sender].options);
             }
         } catch (err) {
@@ -790,15 +792,28 @@ function formatGETOptions(sender, parameters) {
 function sendEndQuickReplies(sender) {
     if (userOptions[sender].quickRepliesOn) {
         console.log('Requesting start over');
-        let buttons = [
-            {
-                content_type: 'text',
-                title: 'Show open only',
-                payload: 'PAYLOAD_OPEN_ONLY',
-            },
-        ];
-        if (isDefined(userOptions[sender]) && !isDefined(userOptions[sender].openOnly) && isDefined(userOptions[sender].options)) {
-            requestContinue(sender, null, buttons);
+        let buttons = [];
+        if (isDefined(userOptions[sender]) && isDefined(userOptions[sender].options)) {
+            if (!isDefined(userOptions[sender].options.qs.openNow)) {
+                buttons.push({
+                    content_type: 'text',
+                    title: 'Show Open Only',
+                    payload: 'PAYLOAD_OPEN_ONLY',
+                });
+            }
+            if (!isDefined(userOptions[sender].options.qs.sortByDistance)) {
+                buttons.push({
+                    content_type: 'text',
+                    title: 'Sort By Distance',
+                    payload: 'PAYLOAD_SORT_BY_DISTANCE',
+                });
+            }
+            if (buttons.length > 0) {
+                requestContinue(sender, null, buttons);
+            }
+            else {
+                requestStart(sender);
+            }
         } else {
             requestStart(sender);
         }
