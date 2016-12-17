@@ -69,7 +69,7 @@ const intentHelp = 'Help';
 const actionStartOver = 'startOver';
 const intentStartOver = 'StartOver';
 const actionGreetings = 'smalltalk.greetings';
-const intentGreetings = '';
+const actionOpenOnly = 'showOpenOnly';
 
 const persistentMenu = {
     help: 'PAYLOAD_HELP',
@@ -182,6 +182,9 @@ function processEvent(event) {
                             deleteUserOptions(sender);
                             requestCategory(sender);
                         }
+                    }
+                    else if (action === actionOpenOnly) {
+                        showOpenOnly(sender);
                     }
                 }
 
@@ -468,9 +471,6 @@ function executeButtonAction(sender, postback) {
         case helpOptions.venues:
             venueHelp(sender);
             console.log('Venue Help');
-            break;
-        case 'PAYLOAD_OPEN_ONLY':
-            showOpenOnly(sender);
             break;
         default:
             console.log('No relevant postback found!');
