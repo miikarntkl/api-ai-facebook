@@ -433,7 +433,6 @@ function deleteUserOptions(sender) {
                 delete userOptions[sender].venueType;
             }
             delete userOptions[sender].openOnly;
-            console.log('')
         } catch (err) {
             console.log('Delete request error: ', err.message);
         }
