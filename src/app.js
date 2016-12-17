@@ -777,8 +777,10 @@ function formatGETOptions(sender, parameters) {
             options = null;
         }
     }
-    if(!isDefined(userOptions[sender]) || !isDefined(userOptions[sender].options)) {
+    if(!isDefined(userOptions[sender])) {
         userOptions[sender] = {};
+    }
+    if (isDefined(options)) { //!isDefined(userOptions[sender].options
         userOptions[sender].options = options;
     }
 
