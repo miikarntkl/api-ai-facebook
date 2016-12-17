@@ -343,7 +343,7 @@ function requestContinue(sender, message, buttons) {
     if (isDefined(buttons)) {
         try {
             for (let i = 0; i < buttons.length; i++) {
-                defaultButtons.push(buttons[i]);
+                defaultButtons.unshift(buttons[i]);
             }
         } catch (err) {
             console.log('Start button error: ', err.message);
@@ -666,7 +666,6 @@ function formatGETOptions(sender, parameters) {
     };
 
     console.log('VenueType before: ', options.qs.section);
-    console.log('VenueType after: ', options.qs.section);
 
 
     //city: 'geo-city',
@@ -752,13 +751,13 @@ function findVenue(sender, parameters, savedOptions) {
             let formatted = formatVenueData(foursquareResponse);    //format response data for fb
 
             if (isDefined(formatted) && formatted.length > 0) {
-                sendFBGenericMessage(sender, formatted, () => {
+                sendFBGenericMessage(sender, formatted, () => { //send data as fb cards
                     if (quickRepliesOn) {
                         console.log('Requesting start over');
                         let buttons = [
                             {
                                 content_type: 'text',
-                                title: 'Show only open venues',
+                                title: 'Show open only',
                                 payload: 'PAYLOAD_OPEN_ONLY',
                             },
                         ];
@@ -769,13 +768,14 @@ function findVenue(sender, parameters, savedOptions) {
                         }
                         
                     }
-                });               //send data as fb cards
+                });
             } else {
-                if (!isDefined(userOptions[sender])) {
+                if (!isDefined(userOptions[sender])) {         //ask for location if not provided
                     userOptions[sender] = {};
                 }
                 userOptions[sender].venueType = parameters.venueType;
-                requestLocation(sender);              //ask for location if not provided
+                console.log('VenueType after: ', userOptions[sender].venueType);
+                requestLocation(sender);              
                 console.log('Problem formatting Foursquare data: ', formatted);
             }
         } else {
@@ -783,6 +783,7 @@ function findVenue(sender, parameters, savedOptions) {
                     userOptions[sender] = {};
                 }
                 userOptions[sender].venueType = parameters.venueType;
+                console.log('VenueType after: ', userOptions[sender].venueType);
                 requestLocation(sender);
                 console.log('No Foursquare response: ', parameters);
         }
