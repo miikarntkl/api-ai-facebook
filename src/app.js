@@ -423,10 +423,12 @@ function requestLocation(sender, message) {
 }
 
 function deleteUserOptions(sender) {
-    if (userOptions.hasOwnProperty(sender)) {
+    if (userOptions.hasOwnProperty(sender)) { 
         try {
             delete userOptions[sender].options;
-            delete userOptions[sender].venueType;
+            if (userOptions[sender].quickRepliesOn) {
+                delete userOptions[sender].venueType;
+            }
             delete userOptions[sender].openOnly;
             console.log('')
         } catch (err) {
@@ -813,6 +815,7 @@ function findVenue(sender, parameters, savedOptions) {
                             requestStart(sender);
                         }
                     }
+                    console.log('UserOptions after: ', userOptions);
                 });
             } else {
                 if (!isDefined(userOptions[sender])) {         //ask for location if not provided
