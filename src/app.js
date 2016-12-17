@@ -485,6 +485,7 @@ function showOpenOnly(sender) {
                 userOptions[sender].options.qs.openNow = 1;
                 findVenue(sender, null, userOptions[sender].options);
             }
+            else textResponse(sender, 'Sorry, I couldn\'t find anything to show.');
         } catch (err) {
             console.log('Open only error: ', err.message);
         }
@@ -787,6 +788,25 @@ function formatGETOptions(sender, parameters) {
     return options;
 }
 
+function sendEndQuickReplies(sender) {
+    if (userOptions[sender].quickRepliesOn) {
+        console.log('Requesting start over');
+        let buttons = [
+            {
+                content_type: 'text',
+                title: 'Show open only',
+                payload: 'PAYLOAD_OPEN_ONLY',
+            },
+        ];
+        if (isDefined(userOptions[sender]) && !isDefined(userOptions[sender].openOnly) && isDefined(userOptions[sender].options)) {
+            requestContinue(sender, null, buttons);
+        } else {
+            requestStart(sender);
+        }
+    }
+    console.log('UserOptions after: ', userOptions);
+}
+
 function findVenue(sender, parameters, savedOptions) {
 
     var options = null;
@@ -802,22 +822,7 @@ function findVenue(sender, parameters, savedOptions) {
 
             if (isDefined(formatted) && formatted.length > 0) {
                 sendFBGenericMessage(sender, formatted, () => { //send data as fb cards
-                    if (userOptions[sender].quickRepliesOn) {
-                        console.log('Requesting start over');
-                        let buttons = [
-                            {
-                                content_type: 'text',
-                                title: 'Show open only',
-                                payload: 'PAYLOAD_OPEN_ONLY',
-                            },
-                        ];
-                        if (isDefined(userOptions[sender]) && !isDefined(userOptions[sender].openOnly) && isDefined(userOptions[sender].options)) {
-                            requestContinue(sender, null, buttons);
-                        } else {
-                            requestStart(sender);
-                        }
-                    }
-                    console.log('UserOptions after: ', userOptions);
+                    sendEndQuickReplies(sender);
                 });
             } else {
                 if (!isDefined(userOptions[sender])) {         //ask for location if not provided
