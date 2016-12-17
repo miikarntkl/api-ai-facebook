@@ -124,7 +124,7 @@ function processEvent(event) {
                 var intentName = response.result.metadata.intentName;
                 var parameters = response.result.parameters;
 
-                if (!isDefined(userOptions[sender]) {
+                if (!isDefined(userOptions[sender])) {
                     userOptions[sender] = {};
                     userOptions[sender].quickRepliesOn = false;
                 } else {
