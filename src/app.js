@@ -58,10 +58,9 @@ const locationParameters = {
 };
 
 const defaultCategory = venueCategories.topPicks.name;
-var suggestionLimit = 5;
-var closestFirst = 0;
+const suggestionLimit = 5;
+const closestFirst = 0;
 var userOptions = {};
-var quickRepliesOn = false;
 
 const actionFindVenue = 'findVenue';
 const intentFindVenue = 'FindVenue';
@@ -168,12 +167,11 @@ function processEvent(event) {
                     else if (action === actionHelp && intentName === intentHelp) {        //check for help request
                         helpMessage(sender);
                     }
-                    else if (quickRepliesOn && action === actionStartOver && intentName === intentStartOver) {
-                        if (userOptions.hasOwnProperty(sender)) {
-                            delete userOptions[sender];
-                            console.log('After deletion: ', userOptions);
+                    else if (action === actionStartOver && intentName === intentStartOver) {
+                        if (userOptions.hasOwnProperty(sender) && userOptions[sender].quickRepliesOn) {
+                            deleteUserOptions(sender);
+                            requestCategory(sender);
                         }
-                        requestCategory(sender);
                     }
                 }
 
@@ -322,10 +320,7 @@ function sendFBSenderAction(sender, action, callback) {
 
 function requestStart(sender, message, buttons) {
     console.log('Requesting start!');
-    if (userOptions.hasOwnProperty(sender)) {
-        delete userOptions[sender];
-        console.log('After deletion: ', userOptions);
-    }
+    deleteUserOptions(sender);
     requestContinue(sender, message, buttons);
 }
 
@@ -353,7 +348,7 @@ function requestContinue(sender, message, buttons) {
         text: message,
         quick_replies: defaultButtons,
     };
-    if (!quickRepliesOn) {
+    if (!userOptions[sender].quickRepliesOn) {
         textResponse(sender, message.concat(' ', 'What are you looking for today?'));
     }
     else {
@@ -416,6 +411,21 @@ function requestLocation(sender, message) {
     sendFBMessage(sender, messageData);
 }
 
+function deleteUserOptions(sender) {
+    if (userOptions.hasOwnProperty(sender)) {
+        try {
+            delete userOptions[sender].options;
+            delete userOptions[sender].venueType;
+            delete userOptions[sender].openOnly;
+        } catch (err) {
+            console.log('Delete request error: ', err.message);
+        }
+        console.log('After deletion: ', userOptions);
+    } else {
+        console.log('Nothing to delete: ', sender);
+    }
+}
+
 function executeButtonAction(sender, postback) {
     switch (postback) {
         case persistentMenu.help:
@@ -425,11 +435,17 @@ function executeButtonAction(sender, postback) {
         case persistentMenu.enable_quick_replies:
             console.log('Enable quick replies');
             requestCategory(sender);
-            quickRepliesOn = true;
+            if (!isDefined(userOptions[sender])) {
+                userOptions[sender] = {};
+            }
+            userOptions[sender].quickRepliesOn = true;
             break;
         case persistentMenu.disable_quick_replies:
             console.log('Disable quick replies');
-            quickRepliesOn = false;
+            if (!isDefined(userOptions[sender])) {
+                userOptions[sender] = {};
+            }
+            userOptions[sender].quickRepliesOn = false;
             break;
         case helpOptions.quick_replies:
             quickReplyHelp(sender);
@@ -452,6 +468,24 @@ function showOpenOnly(sender) {
         try {
             if (isDefined(userOptions[sender].options)) {
                 userOptions[sender].openOnly = 1;
+                userOptions[sender].options.qs.openNow = 1;
+                findVenue(sender, null, userOptions[sender].options);
+            }
+        } catch (err) {
+            console.log('Open only error: ', err.message);
+        }
+    }
+    else {
+        console.log('No saved data for: ', sender);
+    }
+}
+
+function sortByDistance(sender) {
+    if (isDefined(userOptions[sender])) {
+        try {
+            if (isDefined(userOptions[sender].options)) {
+                userOptions[sender].openOnly = 1;
+                userOptions[sender].options.qs.openNow = 1;
                 findVenue(sender, null, userOptions[sender].options);
             }
         } catch (err) {
@@ -466,7 +500,7 @@ function showOpenOnly(sender) {
 function helpMessage(sender) {
     console.log('Sending help message');
     var messageData;
-    if (!quickRepliesOn) {
+    if (!userOptions[sender].quickRepliesOn) {
         messageData = 'I\'m VenueBot. I can search for venues by their category or location.\n\n'+
                       'To search by location, type the name of the location or share your location via Facebook Messenger.\n\n'+
                       'To limit the search results by venue category, enter the name of the category.\n\n'+
@@ -752,7 +786,7 @@ function findVenue(sender, parameters, savedOptions) {
 
             if (isDefined(formatted) && formatted.length > 0) {
                 sendFBGenericMessage(sender, formatted, () => { //send data as fb cards
-                    if (quickRepliesOn) {
+                    if (userOptions[sender].quickRepliesOn) {
                         console.log('Requesting start over');
                         let buttons = [
                             {
