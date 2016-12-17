@@ -124,6 +124,7 @@ function processEvent(event) {
                 var intentName = response.result.metadata.intentName;
                 var parameters = response.result.parameters;
 
+                console.log('UserOptions Start: ', userOptions);
                 if (!isDefined(userOptions[sender])) {
                     userOptions[sender] = {};
                     userOptions[sender].quickRepliesOn = false;
@@ -132,6 +133,7 @@ function processEvent(event) {
                         userOptions[sender].quickRepliesOn = false;
                     }
                 }
+
 
                 console.log(action);
                 console.log(response.result);
@@ -426,6 +428,7 @@ function deleteUserOptions(sender) {
             delete userOptions[sender].options;
             delete userOptions[sender].venueType;
             delete userOptions[sender].openOnly;
+            console.log('')
         } catch (err) {
             console.log('Delete request error: ', err.message);
         }
@@ -809,7 +812,6 @@ function findVenue(sender, parameters, savedOptions) {
                         } else {
                             requestStart(sender);
                         }
-                        
                     }
                 });
             } else {
