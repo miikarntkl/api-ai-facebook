@@ -730,7 +730,7 @@ function formatGETOptions(sender, parameters) {
             options = null;
         }
     }
-    if(!isDefined(userOptions[sender])) {
+    if(!isDefined(userOptions[sender]) || !isDefined(userOptions[sender].options)) {
         userOptions[sender] = {};
         userOptions[sender].options = options;
     }
