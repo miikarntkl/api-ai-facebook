@@ -134,7 +134,6 @@ function processEvent(event) {
                     }
                 }
 
-
                 console.log(action);
                 console.log(response.result);
 
@@ -193,6 +192,7 @@ function processEvent(event) {
         apiaiRequest.end();
     }
     else if (event.postback && event.postback.payload) {
+        console.log('Executing button action: ', event.postback.payload);
         executeButtonAction(sender, event.postback.payload);
     }
 }
