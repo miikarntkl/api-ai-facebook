@@ -128,10 +128,10 @@ function processEvent(event) {
                 console.log('UserOptions Start: ', userOptions);
                 if (!isDefined(userOptions[sender])) {
                     userOptions[sender] = {};
-                    userOptions[sender].quickRepliesOn = false;
+                    userOptions[sender].quickRepliesOn = true;
                 } else {
                     if (!isDefined(userOptions[sender].quickRepliesOn)) {
-                        userOptions[sender].quickRepliesOn = false;
+                        userOptions[sender].quickRepliesOn = true;
                     }
                 }
 
