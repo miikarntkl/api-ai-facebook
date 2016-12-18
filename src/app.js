@@ -179,9 +179,14 @@ function processEvent(event) {
                         helpMessage(sender);
                     }
                     else if (action === actionStartOver && intentName === intentStartOver) {
-                        if (userOptions.hasOwnProperty(sender) && userOptions[sender].quickRepliesOn) {
-                            deleteUserOptions(sender);
-                            requestCategory(sender);
+                        if (userOptions.hasOwnProperty(sender)) {
+                            if (userOptions[sender].quickRepliesOn) {
+                                deleteUserOptions(sender);
+                                requestCategory(sender);
+                            }
+                            else {
+                                requestStart(sender, 'Hey! What are you looking for today?');
+                            }
                         }
                     }
                     else if (action === actionOpenOnly) {
