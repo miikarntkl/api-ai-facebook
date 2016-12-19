@@ -185,7 +185,7 @@ function processEvent(event) {
                                 requestCategory(sender);
                             }
                             else {
-                                requestStart(sender, 'Hey! What are you looking for today?');
+                                requestStart(sender, 'Hey! I can recommend venues, like cáfes and shops, based on type and location.');
                             }
                         }
                     }
@@ -371,7 +371,7 @@ function requestContinue(sender, message, buttons) {
         quick_replies: defaultButtons,
     };
     if (!userOptions[sender].quickRepliesOn) {
-        textResponse(sender, message.concat(' ', 'What are you looking for today?'));
+        textResponse(sender, message.concat(' ', 'What kind of venue are you looking for today?'));
     }
     else {
         sendFBMessage(sender, messageData);
