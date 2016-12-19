@@ -607,7 +607,11 @@ function formatVenueData(raw) {
         console.log('Invalid Foursquare response');
         return null;
     } else {
-        console.log('Response before format: ', raw.response.groups);
+        try {
+            console.log('Response before format: ', raw.response.groups[0].items);
+        } catch (err) {
+            console.log('Format error: ', err.message);
+        }
     }
     var items = raw.response.groups[0].items;
     var venues = [];
@@ -692,7 +696,7 @@ function formatVenueData(raw) {
 }
 
 function formatGETOptions(sender, parameters) {
-    console.log('UserOptions: ', userOptions);
+    console.log('UserOptions: ', userOptions[sender]);
 
     var venueType = defaultCategory;
 
@@ -825,7 +829,7 @@ function sendEndQuickReplies(sender) {
             requestStart(sender);
         }
     }
-    console.log('UserOptions after: ', userOptions);
+    console.log('UserOptions after: ', userOptions[sender]);
 }
 
 function findVenue(sender, parameters, savedOptions) {
