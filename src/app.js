@@ -131,6 +131,7 @@ function processEvent(event) {
                     userOptions[sender].quickRepliesOn = true;
                 } else {
                     if (!isDefined(userOptions[sender].quickRepliesOn)) {
+                        console.log('Turning quick replies on');
                         userOptions[sender].quickRepliesOn = true;
                     }
                 }
@@ -606,13 +607,8 @@ function formatVenueData(raw) {
     if (!isDefined(raw.response.groups)) {
         console.log('Invalid Foursquare response');
         return null;
-    } else {
-        try {
-            console.log('Response before format: ', raw.response.groups[0].items);
-        } catch (err) {
-            console.log('Format error: ', err.message);
-        }
-    }
+    } 
+
     var items = raw.response.groups[0].items;
     var venues = [];
     var j = 0;
@@ -802,7 +798,7 @@ function formatGETOptions(sender, parameters) {
 
 function sendEndQuickReplies(sender) {
     if (userOptions[sender].quickRepliesOn) {
-        console.log('Requesting start over');
+        console.log('Requesting end quick replies');
         let buttons = [];
         if (isDefined(userOptions[sender]) && isDefined(userOptions[sender].options)) {
             if (!isDefined(userOptions[sender].options.qs.openNow)) {
@@ -843,12 +839,6 @@ function findVenue(sender, parameters, savedOptions) {
 
     getVenues(sender, options, (foursquareResponse) => {                 //find venues according to parameters
         if (isDefined(foursquareResponse) && isDefined(foursquareResponse.response)) {
-
-            try {
-                console.log('Options before format: ', userOptions[sender]);
-            } catch (err) {
-                console.log(err.message);
-            }
 
             let formatted = formatVenueData(foursquareResponse);    //format response data for fb
 
