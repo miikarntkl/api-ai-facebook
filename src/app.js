@@ -606,6 +606,8 @@ function formatVenueData(raw) {
     if (!isDefined(raw.response.groups)) {
         console.log('Invalid Foursquare response');
         return null;
+    } else {
+        console.log('Response before format: '. raw.response.groups);
     }
     var items = raw.response.groups[0].items;
     var venues = [];
