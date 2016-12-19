@@ -131,7 +131,8 @@ function processEvent(event) {
                     userOptions[sender].quickRepliesOn = true;
                 } else {
                     if (!isDefined(userOptions[sender].quickRepliesOn)) {
-                        console.log('Turning quick replies on');
+                        console.log('Turning quick replies on: ', userOptions[sender].quickRepliesOn);
+                        console.log('Sender: ', sender);
                         userOptions[sender].quickRepliesOn = true;
                     }
                 }
