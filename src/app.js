@@ -130,9 +130,7 @@ function processEvent(event) {
                     userOptions[sender] = {};
                     userOptions[sender].quickRepliesOn = true;
                 } else {
-                    if (!isDefined(userOptions[sender].quickRepliesOn)) {
-                        console.log('Turning quick replies on: ', userOptions[sender].quickRepliesOn);
-                        console.log('Sender: ', sender);
+                    if (typeof userOptions[sender].quickRepliesOn == 'undefined') {
                         userOptions[sender].quickRepliesOn = true;
                     }
                 }
