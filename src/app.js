@@ -837,6 +837,13 @@ function findVenue(sender, parameters, savedOptions) {
 
     getVenues(sender, options, (foursquareResponse) => {                 //find venues according to parameters
         if (isDefined(foursquareResponse) && isDefined(foursquareResponse.response)) {
+
+            try {
+                console.log('Options before format: ', userOptions[sender]);
+            } catch (err) {
+                console.log(err.message);
+            }
+
             let formatted = formatVenueData(foursquareResponse);    //format response data for fb
 
             if (isDefined(formatted) && formatted.length > 0) {
