@@ -618,7 +618,7 @@ function formatVenueData(raw) {
     var j = 0;
 
     if (isDefined(items)) {
-        for (let i = 0; i < suggestionLimit; i++) {
+        for (let i = 0; i < suggestionLimit && i < items.length; i++) {
             var venue = items[i].venue;
 
             //add venue name
